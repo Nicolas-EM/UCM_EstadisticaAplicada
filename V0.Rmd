@@ -1,0 +1,70 @@
+---
+title: "EA - Analisis OVNIs"
+output: html_notebook
+---
+
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+```
+
+# Intro
+
+En este projecto usaremos el fichero de datos "scrubbed.csv" obtenido en <https://www.kaggle.com/datasets/NUFORC/ufo-sightings>. Elimininaremos datos de tipo NA y cambiaremos paises vacios (i.e. pais == "") por "*Otros*". Tambien arreglamos el formato de los datos con la libreria *lubridate*. Usamos la libreria *dplyr* para eliminar columnas no necesarias.
+
+```{r}
+# Leemos datos de CSV
+datos <- read.csv("scrubbed.csv")
+
+# Eliminamos datos NA
+
+
+# Reemplacamos paises "" por "Otros"
+datos$country <- ifelse(datos$country=="","otros",datos$country)
+
+# Formateamos datos
+datos$datetime <- as.POSIXct(datos$datetime, format =  "%m/%d/%Y %H:%M")
+datos$'duration (seconds)' <- as.integer(datos$'duration..seconds.')
+datos$latitude <- as.numeric(datos$latitude)
+
+library(dplyr)
+
+datos <- datos %>% select(-one_of('duration..seconds.', 'duration..hours.min.', 'date.posted'))
+
+datos <- na.omit(datos)
+```
+
+Analisando los datos por pais, podemos ver que la mayoria de los OVNIs reportados son en EEUU. Usaremos la libreria *ggplot2* para generar diagrama, y representamos el diagrama de numero de OVNIs por pais
+
+```{r}
+by_country <- aggregate(datos$country, by=list(Country = datos$country), FUN=length)
+
+library(ggplot2)
+
+ggplot(by_country, aes(x="", y=by_country$x, fill=by_country$Country)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0) +
+  xlab("") +
+  ylab("") +
+  guides(fill = guide_legend(title = "Pais"))
+```
+
+Por eso, hemos decidido hacer nuestros analisis sobre datos solamente de EEUU. Con `summary(datos_us)` podemos ver 
+
+```{r}
+datos_us <- datos[which(datos$country == 'us'),]
+
+datos_us <- datos_us %>% select(-country)
+
+summary(datos_us)
+```
+Calculamos el modo con la funcion *mode*
+```{r}
+mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
+mode(datos_us$'duration (seconds)')
+```
+
+
