@@ -15,9 +15,6 @@ En este projecto usaremos el fichero de datos "scrubbed.csv" obtenido en <https:
 # Leemos datos de CSV
 datos <- read.csv("scrubbed.csv")
 
-# Eliminamos datos NA
-
-
 # Reemplacamos paises "" por "Otros"
 datos$country <- ifelse(datos$country=="","otros",datos$country)
 
@@ -26,11 +23,12 @@ datos$datetime <- as.POSIXct(datos$datetime, format =  "%m/%d/%Y %H:%M")
 datos$'duration (seconds)' <- as.integer(datos$'duration..seconds.')
 datos$latitude <- as.numeric(datos$latitude)
 
+# Eliminamos datos NA
+datos <- na.omit(datos)
+
 library(dplyr)
 
 datos <- datos %>% select(-one_of('duration..seconds.', 'duration..hours.min.', 'date.posted'))
-
-datos <- na.omit(datos)
 ```
 
 Analisando los datos por pais, podemos ver que la mayoria de los OVNIs reportados son en EEUU. Usaremos la libreria *ggplot2* para generar diagrama, y representamos el diagrama de numero de OVNIs por pais
@@ -48,17 +46,24 @@ ggplot(by_country, aes(x="", y=by_country$x, fill=by_country$Country)) +
   guides(fill = guide_legend(title = "Pais"))
 ```
 
-Por eso, hemos decidido hacer nuestros analisis sobre datos solamente de EEUU. Con `summary(datos_us)` podemos ver 
+Por eso, hemos decidido hacer nuestros analisis sobre datos solamente de EEUU. Tomamos una prueba de tamaño 500
 
 ```{r}
 datos_us <- datos[which(datos$country == 'us'),]
 
 datos_us <- datos_us %>% select(-country)
 
-summary(datos_us)
+datos_us <- datos_us[sample(nrow(datos_us), 500), ]
 ```
-Calculamos el modo con la funcion *mode*
+
+# Tema 3 - Estadística Descriptiva y Regresión
+## Medidas de Posición - Tendencia Central y No Central
+
+Con `summary(datos_us)` podemos ver la media, mediana y percentiles de varios datos, y calculamos la moda de la duracion con la funcion *mode*
+
 ```{r}
+summary(datos_us)
+
 mode <- function(x) {
   ux <- unique(x)
   ux[which.max(tabulate(match(x, ux)))]
@@ -66,5 +71,26 @@ mode <- function(x) {
 
 mode(datos_us$'duration (seconds)')
 ```
+
+## Medidas de Dispersión
+
+Sobre la duracion, calculamos:
+
+| Medida | Formula |
+|:------|-------:|
+| Varianza | var(x) |
+| Desviación típica | sd(x) |
+| Cuasivarianza | TODO |
+| Cuasivarianza típica | TODO |
+
+```{r}
+varianza <- var(datos_us$'duration (seconds)')
+
+sd <- sd(datos_us$'duration (seconds)')
+
+```
+
+## Medidas de Forma
+TODO
 
 
