@@ -94,4 +94,10 @@ print(paste("Desviación típica: ", sd))
 ## Medidas de Forma
 TODO
 
+# Tema 4 - Probabilidad
 
+# Tema 5 - Variables Aleatorias y Modelos de Probabilidad
+
+# Tema 6 - Muestreo, Estimación Puntual y por Intervalos de Confianza
+
+# Tema 7 - Contrastes de Hipótesis
