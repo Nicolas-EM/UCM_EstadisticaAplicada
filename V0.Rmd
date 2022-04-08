@@ -85,9 +85,10 @@ Sobre la duracion, calculamos:
 
 ```{r}
 varianza <- var(datos_us$'duration (seconds)')
+print(paste("Varianza: ", varianza))
 
 sd <- sd(datos_us$'duration (seconds)')
-
+print(paste("Desviación típica: ", sd))
 ```
 
 ## Medidas de Forma
