@@ -46,17 +46,17 @@ ggplot(by_country, aes(x="", y=by_country$x, fill=by_country$Country)) +
   guides(fill = guide_legend(title = "Pais"))
 ```
 
-Por eso, hemos decidido hacer nuestros analisis sobre datos solamente de EEUU. Tomamos una prueba de tamaño 500
+Por eso, hemos decidido hacer nuestros analisis sobre datos solamente de EEUU. Tomamos una prueba de tamaño 1000
 
 ```{r}
 datos_us <- datos[which(datos$country == 'us'),]
 
 datos_us <- datos_us %>% select(-country)
 
-datos_us <- datos_us[sample(nrow(datos_us), 500), ]
+datos_us <- datos_us[sample(nrow(datos_us), 1000), ]
 ```
 
-# Tema 3 - Estadística Descriptiva y Regresión
+# Tema 3 - Estadística Descriptiva y Regresión (Axel)
 ## Medidas de Posición - Tendencia Central y No Central
 
 Con `summary(datos_us)` podemos ver la media, mediana y percentiles de varios datos, y calculamos la moda de la duracion con la funcion *mode*
@@ -94,10 +94,10 @@ print(paste("Desviación típica: ", sd))
 ## Medidas de Forma
 TODO
 
-# Tema 4 - Probabilidad
+# Tema 4 - Probabilidad (Fonsi)
 
-# Tema 5 - Variables Aleatorias y Modelos de Probabilidad
+# Tema 5 - Variables Aleatorias y Modelos de Probabilidad (Sergio)
 
-# Tema 6 - Muestreo, Estimación Puntual y por Intervalos de Confianza
+# Tema 6 - Muestreo, Estimación Puntual y por Intervalos de Confianza (Iñigo)
 
-# Tema 7 - Contrastes de Hipótesis
+# Tema 7 - Contrastes de Hipótesis (Nico)
