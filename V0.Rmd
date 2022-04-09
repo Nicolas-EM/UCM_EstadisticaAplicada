@@ -96,6 +96,42 @@ TODO
 
 # Tema 4 - Probabilidad (Fonsi)
 
+Probabilidad de ser de cada pais en caso de avistar un ovni
+
+```{r}
+dat <- read.csv("scrubbed.csv")
+dat_country<-aggregate(dat$country, by=list(Country = dat$country), FUN=length)
+dat$country <- ifelse(dat$country=="","otros",dat$country)
+numAvistamientos<-count(dat)
+proobau1<-dat_country[which(dat_country$Country == 'au'),]
+proobau2<-dat_country[which(dat_country$Country == 'ca'),]
+proobau3<-dat_country[which(dat_country$Country == 'de'),]
+proobau4<-dat_country[which(dat_country$Country == 'gb'),]
+proobau5<-dat_country[which(dat_country$Country == 'us'),]
+proobau6<-dat_country[which(dat_country$Country == ''),]
+probbauval1<-(proobau1$x/numAvistamientos)*100
+probbauval2<-(proobau2$x/numAvistamientos)*100
+probbauval3<-(proobau3$x/numAvistamientos)*100
+probbauval4<-(proobau4$x/numAvistamientos)*100
+probbauval5<-(proobau5$x/numAvistamientos)*100
+probbauval6<-(proobau6$x/numAvistamientos)*100
+print(paste("La probabilidad de avistar un ovni en Australia es del: ",probbauval1,"%"))
+
+print(paste("La probabilidad de avistar un ovni en Canadá es del: ",probbauval2,"%"))
+
+print(paste("La probabilidad de avistar un ovni en Alemania es del: ",probbauval3,"%"))
+
+print(paste("La probabilidad de avistar un ovni en Gran Bretaña es del: ",probbauval4,"%"))
+
+print(paste("La probabilidad de avistar un ovni en Estados Unidos es del: ",probbauval5,"%"))
+
+print(paste("La probabilidad de avistar un ovni en otros países es del: ",probbauval6,"%"))
+
+
+
+```
+
+
 # Tema 5 - Variables Aleatorias y Modelos de Probabilidad (Sergio)
 
 # Tema 6 - Muestreo, Estimación Puntual y por Intervalos de Confianza (Iñigo)
