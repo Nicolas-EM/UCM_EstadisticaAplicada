@@ -115,6 +115,9 @@ probbauval3<-(proobau3$x/numAvistamientos)*100
 probbauval4<-(proobau4$x/numAvistamientos)*100
 probbauval5<-(proobau5$x/numAvistamientos)*100
 probbauval6<-(proobau6$x/numAvistamientos)*100
+
+
+
 print(paste("La probabilidad de avistar un ovni en Australia es del: ",probbauval1,"%"))
 
 print(paste("La probabilidad de avistar un ovni en Canadá es del: ",probbauval2,"%"))
@@ -126,7 +129,25 @@ print(paste("La probabilidad de avistar un ovni en Gran Bretaña es del: ",probb
 print(paste("La probabilidad de avistar un ovni en Estados Unidos es del: ",probbauval5,"%"))
 
 print(paste("La probabilidad de avistar un ovni en otros países es del: ",probbauval6,"%"))
+```
 
+Debido a que es  en Estados Unidos donde hay mayor probabilidad de avistar un UFO vamos a calcular las ciudades donde es mas probable lograrlo
+
+
+```{r}
+by_city <- aggregate(datos_us$city, by=list(Country = datos_us$city), FUN=length)
+mostseek<-by_city[which(by_city$x>4),]
+
+maxcity<-by_city[which(by_city$x == max(by_city$x)),]
+print(paste("La ciudad con mayor probabilidad de avistar un ovni es",maxcity$Country,"con una probabilidad de un ",(maxcity$x/count(by_city))*100,"%"))
+
+
+ggplot(mostseek, aes(x="", y=mostseek$x, fill=mostseek$Country)) +
+  geom_bar(stat="identity", width=1) +
+  coord_polar("y", start=0) +
+  xlab("") +
+  ylab("") +
+  guides(fill = guide_legend(title = "Pais"))
 
 
 ```
