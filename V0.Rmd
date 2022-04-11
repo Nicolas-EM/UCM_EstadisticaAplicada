@@ -135,21 +135,24 @@ Debido a que es  en Estados Unidos donde hay mayor probabilidad de avistar un UF
 
 
 ```{r}
-by_city <- aggregate(datos_us$city, by=list(Country = datos_us$city), FUN=length)
+by_city <- aggregate(datos_us$city, by=list(City = datos_us$city), FUN=length)
 mostseek<-by_city[which(by_city$x>4),]
 
 maxcity<-by_city[which(by_city$x == max(by_city$x)),]
-print(paste("La ciudad con mayor probabilidad de avistar un ovni es",maxcity$Country,"con una probabilidad de un ",(maxcity$x/count(by_city))*100,"%"))
+print(paste("La ciudad con mayor probabilidad de avistar un ovni es",maxcity$City,"con una probabilidad de un ",(maxcity$x/count(by_city))*100,"%"))
 
 
-ggplot(mostseek, aes(x="", y=mostseek$x, fill=mostseek$Country)) +
+ggplot(mostseek, aes(x="", y=mostseek$x, fill=mostseek$City)) +
   geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0) +
   xlab("") +
   ylab("") +
-  guides(fill = guide_legend(title = "Pais"))
+  guides(fill = guide_legend(title = "Pais" ))
 
+plot(names.arg=mostseek$Country,mostseek$x,type="l",col="blue", xlab = "Ciudades", ylab = "Avistamientos", main = "Número de avistamientos en ciudades") 
 
+anios<- aggregate(datos_us$city, by=list(Date = format(datos_us$datetime,"%Y")), FUN=length)
+
+plot(anios$Date,anios$x,type="l",col="blue", xlab = "Linea temporal", ylab = "Avistamientos", main = "Número de avistamientos por año")
 ```
 
 
