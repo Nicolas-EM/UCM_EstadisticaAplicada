@@ -57,42 +57,205 @@ datos_us <- datos_us[sample(nrow(datos_us), 1000), ]
 ```
 
 # Tema 3 - Estadística Descriptiva y Regresión (Axel)
+De la prueba de 1000 datos, se ha hecho el análisis solamente de las variables cuantitativas, las cuales son: ("datetime, latitude, longitude, duration(seconds)")
+Con el comando names(object...) se puede ver todas las columnas del fichero de datos y las referenciadas anteriormente
+```{r}
+names(datos_us)
+```
+
 ## Medidas de Posición - Tendencia Central y No Central
 
-Con `summary(datos_us)` podemos ver la media, mediana y percentiles de varios datos, y calculamos la moda de la duracion con la funcion *mode*
+Con `summary(object...)` podemos ver la media, mediana y percentiles de varios datos, para calcular la moda usamos la funcion *mode*
 
+#datetime
 ```{r}
-summary(datos_us)
+summary(datos_us$datetime)
 
 mode <- function(x) {
   ux <- unique(x)
   ux[which.max(tabulate(match(x, ux)))]
 }
 
-mode(datos_us$'duration (seconds)')
+print(paste("Moda: ", mode(datos_us$datetime)))
+```
+#latitude
+```{r}
+summary(datos_us$latitude)
+
+mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
+print(paste("Moda: ", mode(datos_us$latitude)))
+```
+#longitude
+```{r}
+summary(datos_us$longitude)
+
+mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
+print(paste("Moda: ", mode(datos_us$longitude)))
+```
+#duration (seconds)
+```{r}
+summary(datos_us$'duration (seconds)')
+
+mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+
+print(paste("Moda: ", mode(datos_us$'duration (seconds)')))
 ```
 
 ## Medidas de Dispersión
 
-Sobre la duracion, calculamos:
+No se ha considerado necesario calcular la varianza y desviación poblacional
 
 | Medida | Formula |
 |:------|-------:|
-| Varianza | var(x) |
-| Desviación típica | sd(x) |
-| Cuasivarianza | TODO |
-| Cuasivarianza típica | TODO |
+| Cuasivarianza | var(x) |
+| Cuasidesviación típica | sd(x) |
+| Coeficiente de variación | coef_var(x) |
 
+#duration (seconds)
 ```{r}
 varianza <- var(datos_us$'duration (seconds)')
-print(paste("Varianza: ", varianza))
+print(paste("Cuasivarianza: ", varianza))
 
 sd <- sd(datos_us$'duration (seconds)')
-print(paste("Desviación típica: ", sd))
-```
+print(paste("Cuasidesviación típica: ", sd))
 
-## Medidas de Forma
-TODO
+coef_var <- function(x) {
+  sd(x) / mean(x)
+}
+cv <- coef_var(datos_us$'duration (seconds)')
+print(paste("Coeficiente de variación: ", cv))
+
+```
+#latitude
+```{r}
+varianza <- var(datos_us$latitude)
+print(paste("Cuasivarianza: ", varianza))
+
+sd <- sd(datos_us$latitude)
+print(paste("Cuasidesviación típica: ", sd))
+
+coef_var <- function(x) {
+  sd(x) / mean(x)
+}
+cv <- coef_var(datos_us$latitude)
+print(paste("Coeficiente de variación: ", cv))
+
+```
+#longitude
+```{r}
+varianza <- var(datos_us$longitude)
+print(paste("Cuasivarianza: ", varianza))
+
+sd <- sd(datos_us$longitude)
+print(paste("Cuasidesviación típica: ", sd))
+
+coef_var <- function(x) {
+  sd(x) / mean(x)
+}
+cv <- coef_var(datos_us$longitude)
+print(paste("Coeficiente de variación: ", cv))
+
+```
+#datetime
+```{r}
+varianza <- var(datos_us$datetime)
+print(paste("Cuasivarianza: ", varianza))
+
+sd <- sd(datos_us$datetime)
+print(paste("Cuasidesviación típica: ", sd))
+
+```
+## Medidas de Forma(Usar si no funciona: install.packages("moments"))
+#latitude
+Al calcular la asimetría y curtosis de la latitud determinamos que:
+*Obtenemos una asimetría negativa, por tanto la mayoría de datos se encuentran a la derecha de la media.
+*Obtenemos una curtosis mayor que cero, por tanto, hay una mayor concentración
+de datos alrededor de la media
+```{r}
+library(moments)
+x <- (datos_us$latitude)
+print(kurtosis(x))
+print(skewness(x))
+print(mean(x))
+hist(x)
+```
+#longitude
+Al calcular la asimetría y curtosis de la latitud determinamos que:
+*Obtenemos una asimetría negativa, por tanto la mayoría de datos se encuentran a la derecha de la media.
+*Obtenemos una curtosis mayor que cero, por tanto, hay una mayor concentración
+de datos alrededor de la media
+```{r}
+library(moments)
+x <- (datos_us$longitude)
+print(kurtosis(x))
+print(skewness(x))
+print(mean(x))
+hist(x)
+```
+#datetime
+Al calcular la asimetría y curtosis de la latitud determinamos que:
+*Obtenemos una asimetría negativa, por tanto la mayoría de datos se encuentran a la derecha de la media.
+*Obtenemos una curtosis mayor que cero, por tanto, hay una mayor concentración
+de datos alrededor de la media
+```{r}
+library(moments)
+x <- (datos_us$datetime)
+print(kurtosis(x))
+print(skewness(x))
+hist(x, 50)
+```
+#duration (seconds)
+Al calcular la asimetría y curtosis de la latitud determinamos que:
+*Obtenemos una asimetría positiva, por tanto la mayoría de datos se encuentran a la izquierda de la media.
+*Obtenemos una curtosis mayor que cero, por tanto, hay una mayor concentración
+de datos alrededor de la media
+```{r}
+library(moments)
+x <- (datos_us$'duration (seconds)')
+print(kurtosis(x))
+print(skewness(x))
+print(mean(x))
+hist(x)
+```
+##Gráficos asociados a la Tabla de Frecuencias para algunos datos(excepto histogramas, usados anteriormente para ver mejor las medidas de forma)
+#Poligonos absolutos
+#latitud
+```{r}
+lat <- datos_us$latitude
+breaks <- seq(0, 90, by=10)
+lat.cut <- cut(lat, breaks, right = FALSE)
+lat.freq <- table(lat.cut)
+lat.cumfreq <- c(0,cumsum(lat.freq))
+plot(breaks, lat.cumfreq,
+     main="Latitud de los ovnis",
+     xlab = "Latitud",
+     ylab = "Latitudes acumuladas")
+lines(breaks, lat.cumfreq)
+```
+#longitude
+```{r}
+longitude <- datos_us$longitude
+breaks <- seq(-200, 100, by=10)
+longitude.cut <- cut(longitude, breaks, right = FALSE)
+longitude.freq <- table(longitude.cut)
+longitude.cumfreq <- c(0,cumsum(longitude.freq))
+plot(breaks, longitude.cumfreq,
+     main="Longitud de los ovnis",
+     xlab = "Longitud",
+     ylab = "Longitudes acumuladas")
+lines(breaks, longitude.cumfreq)
+```
 
 # Tema 4 - Probabilidad (Fonsi)
 
