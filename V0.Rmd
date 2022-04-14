@@ -162,11 +162,28 @@ plot(anios$Date,anios$x,type="l",col="blue", xlab = "Linea temporal", ylab = "Av
 
 Vamos a construir un intervalo de confianza del 95% para la duracion media de los avistamientos en EEUU.
 ```{r}
-#retval <- subset(datos_us, "duration (seconds)" > 1200, select = c(state, `duration (seconds)`))
-datos_us <- datos_us[!is.na(datos_us$"duration (seconds)"), ]#eliminar NAs
-intervalo <- t.test(datos_us$"duration (seconds)", conf.level = 0.95)
-print(intervalo$conf.int)
-print(paste("El resultado indica que la media de la variable duracion (seconds) es de ", mean(datos_us$"duration (seconds)"), " el cual se encuentra con una confianza del 95% en el intervalo ", intervalo$conf.int[1], " ", intervalo$conf.int[2]))
+datos <- read.csv("scrubbed.csv")#dataframe
+datos_us <- datos[which(datos$country == "us"), ]#filtro por pais Estados Unidos
+datos_us$"duration..seconds." <- as.integer(datos_us$"duration..seconds.")#convierto los valores a integer
+datos_us <- datos_us[!is.na(datos_us$duration..seconds.), ]#eliminar NAs (en caso de que no se pudiera convertir a int algun valor)
+retval <- subset(datos_us, duration..seconds. < 7201, select = c(state, duration..seconds.))#filtro por duracion menor o igual a 7200, para descartar valores muy altos que son inútiles nuestro análisis
+
+intervalo <- t.test(retval$duration..seconds., conf.level = 0.95)#sacamos el intervalo de confianza
+print(intervalo$conf.int)#intervalo de confianza
+print(mean(retval$duration..seconds.))#media
+
+print(paste("El resultado indica que la media de la variable duracion (seconds) es de ", mean(retval$duration..seconds.), " el cual se encuentra con una confianza del 95% en el intervalo ", intervalo$conf.int[1], " ", intervalo$conf.int[2]))
+
+car::qqPlot(retval$duration..seconds., pch=19,
+       main='QQplot para la duración de avistamientos',
+       xlab='Cuantiles teóricos',
+       ylab='Cuantiles muestrales')
+
+hist(retval$duration..seconds., freq=TRUE,
+     main='Histograma para la duración de avistamientos',
+     xlab='Duracion (s)',
+     ylab='Frecuencia')
+     #Podemos observar que la mayoría de avistamientos duran muy poco tiempo.
 ```
 
 
