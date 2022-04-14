@@ -160,4 +160,12 @@ plot(anios$Date,anios$x,type="l",col="blue", xlab = "Linea temporal", ylab = "Av
 
 # Tema 6 - Muestreo, Estimación Puntual y por Intervalos de Confianza (Iñigo)
 
+Vamos a construir un intervalo de confianza del 95% para la proporción de avistamientos que duran más de 1200s (20min)
+```{r}
+#datos1200 <- datos[which(datos$"duration (seconds)" > 1200),]
+datos_df <- subset(datos_us, "duration (seconds)" > 1200, select = c(state, "duration (seconds)"))
+#print(paste(datos_df))
+datos_df
+```
+
 # Tema 7 - Contrastes de Hipótesis (Nico)
