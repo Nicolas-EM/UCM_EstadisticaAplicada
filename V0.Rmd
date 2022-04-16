@@ -281,6 +281,14 @@ probbauval6<-(proobau6$x/numAvistamientos)*100
 
 
 
+
+ggplot(by_country, aes(x=by_country$Country, y=by_country$x, fill=by_country$Country)) +
+  geom_bar(stat="identity", width=1) +
+  xlab('Paises') +
+  ylab('Avistamientos') +
+  guides(fill = guide_legend(title = "Country" ))
+
+
 print(paste("La probabilidad de avistar un ovni en Australia es del: ",probbauval1,"%"))
 
 print(paste("La probabilidad de avistar un ovni en Canadá es del: ",probbauval2,"%"))
@@ -299,31 +307,51 @@ Debido a que es  en Estados Unidos donde hay mayor probabilidad de avistar un UF
 
 ```{r}
 by_city <- aggregate(datos_us$city, by=list(City = datos_us$city), FUN=length)
-mostseek<-by_city[which(by_city$x>5),]
+
 avistTot<-sum(by_city$x)
+mostseek<-by_city[which(by_city$x>200),]
 
 maxcity<-by_city[which(by_city$x == max(by_city$x)),]
 print(paste("La ciudad con mayor probabilidad de avistar un ovni es",maxcity$City,"con una probabilidad de un ",(maxcity$x/avistTot)*100,"%"))
-
-
-ggplot(mostseek, aes(x=mostseek$City, y=mostseek$x, fill=mostseek$City)) +
-  
+print(paste("A continuación se muestra una gráfica con las ciudades donde mayor probabilidad hay de avistar un ovni"))
+ggplot(mostseek, aes(x=mostseek$City, y=(mostseek$x/avistTot)*100, fill=mostseek$City)) +
   geom_bar(stat="identity", width=1) +
-  xlab('Ciudades') +
-  ylab('Avistamientos') +
+  xlab('') +
+  ylab('Probabilidad') +
+  theme(axis.text.x=element_blank())+
   guides(fill = guide_legend(title = "Pais" ))
-
-anios<- aggregate(datos_us$city, by=list(Date = format(datos_us$datetime,"%Y")), FUN=length)
-
-
-plot(anios$Date,anios$x,type="l",col="blue", xlab = "Linea temporal", ylab = "Avistamientos", main = "Número de avistamientos por año")
-aux<-anios[which(anios$x == max(anios$x)),]
-maxanio<-aux$Date
-print(paste("El año con mayor probabilidad en caso de avistamiento fué:",maxanio,"con una probabilidad del",(aux$x/avistTot)*100,"%"))
-
 
 ```
 
+
+```{r}
+anios<- aggregate(datos_us$city, by=list(Date = format(datos_us$datetime,"%Y")), FUN=length)
+maxanio<-anios[which(anios$x == max(anios$x)),]
+
+print(paste("El año con mayor probabilidad en caso de avistamiento fué",maxanio$Date,"con una probabilidad del",(maxanio$x/avistTot)*100,"%"))
+plot(anios$Date,anios$x,type="l",col="blue", xlab = "Linea temporal", ylab = "Avistamientos", main = "Número de avistamientos por año")
+```
+
+
+```{r}
+by_shape <- aggregate(datos_us$shape, by=list(shape = datos_us$shape), FUN=length)
+max_shape<-sum(by_shape$x)
+maxshape<-by_shape[which(by_shape$x == max(by_shape$x)),]
+minshape<-by_shape[which(by_shape$x == min(by_shape$x)),]
+print(paste("El ovni mas probabilidad de ser avistado son aquellos ovnis con forma",maxshape$shape,"con una probabilidad del",(maxshape$x/avistTot)*100,"%"))
+print(paste("Mientras que los más raros con mayor dificultad de avistamiento son aquellos con forma"))
+print (paste(minshape$shape))
+print(paste("con una probabilidad de avistamiento del",(minshape$x[1]/avistTot)*100,"%"))
+
+ggplot(by_shape, aes(x=by_shape$shape,y=(by_shape$x/max_shape)*100,fill=by_shape$shape)) +
+  geom_bar(stat="identity", width=1) +
+  xlab('') +
+  ylab('Avistamientos') +
+theme(axis.text.x=element_blank())+
+  guides(fill = guide_legend(title = "Formas" ))
+
+
+```
 
 # Tema 5 - Variables Aleatorias y Modelos de Probabilidad (Sergio)
 
