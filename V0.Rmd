@@ -265,7 +265,7 @@ Probabilidad de ser de cada pais en caso de avistar un ovni
 dat <- read.csv("scrubbed.csv")
 dat_country<-aggregate(dat$country, by=list(Country = dat$country), FUN=length)
 dat$country <- ifelse(dat$country=="","otros",dat$country)
-numAvistamientos<-count(dat)
+numAvistamientos<-sum(dat_country$x)
 proobau1<-dat_country[which(dat_country$Country == 'au'),]
 proobau2<-dat_country[which(dat_country$Country == 'ca'),]
 proobau3<-dat_country[which(dat_country$Country == 'de'),]
@@ -299,23 +299,29 @@ Debido a que es  en Estados Unidos donde hay mayor probabilidad de avistar un UF
 
 ```{r}
 by_city <- aggregate(datos_us$city, by=list(City = datos_us$city), FUN=length)
-mostseek<-by_city[which(by_city$x>4),]
+mostseek<-by_city[which(by_city$x>5),]
+avistTot<-sum(by_city$x)
 
 maxcity<-by_city[which(by_city$x == max(by_city$x)),]
-print(paste("La ciudad con mayor probabilidad de avistar un ovni es",maxcity$City,"con una probabilidad de un ",(maxcity$x/count(by_city))*100,"%"))
+print(paste("La ciudad con mayor probabilidad de avistar un ovni es",maxcity$City,"con una probabilidad de un ",(maxcity$x/avistTot)*100,"%"))
 
 
-ggplot(mostseek, aes(x="", y=mostseek$x, fill=mostseek$City)) +
+ggplot(mostseek, aes(x=mostseek$City, y=mostseek$x, fill=mostseek$City)) +
+  
   geom_bar(stat="identity", width=1) +
-  xlab("") +
-  ylab("") +
+  xlab('Ciudades') +
+  ylab('Avistamientos') +
   guides(fill = guide_legend(title = "Pais" ))
-
-plot(names.arg=mostseek$Country,mostseek$x,type="l",col="blue", xlab = "Ciudades", ylab = "Avistamientos", main = "Número de avistamientos en ciudades") 
 
 anios<- aggregate(datos_us$city, by=list(Date = format(datos_us$datetime,"%Y")), FUN=length)
 
+
 plot(anios$Date,anios$x,type="l",col="blue", xlab = "Linea temporal", ylab = "Avistamientos", main = "Número de avistamientos por año")
+aux<-anios[which(anios$x == max(anios$x)),]
+maxanio<-aux$Date
+print(paste("El año con mayor probabilidad en caso de avistamiento fué:",maxanio,"con una probabilidad del",(aux$x/avistTot)*100,"%"))
+
+
 ```
 
 
