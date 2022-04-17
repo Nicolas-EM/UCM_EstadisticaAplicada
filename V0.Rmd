@@ -383,7 +383,7 @@ maxyear<-sum(anios$x)
 print(paste("El año con mayor probabilidad en caso de avistamiento fué",maxanio$Date,"con una probabilidad del",(maxanio$x/avistTot)*100,"%"))
 plot(anios$Date,(anios$x/maxyear)*100,type="l",col="dark blue", xlab = "Linea temporal", ylab = "Probabilidad", main = "Probabilidad de avistamientos por año")
 ```
-Para finalizar observamos la probabilidad de lograr un avistamiento de larga duración
+Observamos la probabilidad de lograr un avistamiento de larga duración
 ```{r}
 durability<- aggregate(datos_us$`duration (seconds)`, by=list(duracion = datos_us$`duration (seconds)`), FUN=length)
                        
@@ -401,8 +401,36 @@ print(paste("La probabilidad de ver un UFO durante menos de un minuto es del",(s
 print(paste("La probabilidad de ver un UFO durante mas de un minuto es del",(sumaprobduracion4/sumaprobduracion)*100,"%"))
 plot(maxdur$duracion,(maxdur$x/sumaprobduracion)*100,type="l",col="blue", xlab = "Segundos", ylab = "Probabilidad", main = "Probabilidad de avistamientos por más de un segundo")
 ```
-# TODO (FONSI)
-### Operaciones con Sucesos
+A continuación realizaremos algunas operaciones con sucesos de probabilidad
+```{r}
+library(eulerr)
+probinter1 <- datos_us[which(datos_us$city == 'seattle'&format(datos_us$datetime,"%H")==21),]
+probinter2<-aggregate(probinter1$city,by=list(city=probinter1$city),FUN=length)
+probinter3 <- datos_us[which(datos_us$city == 'seattle'|format(datos_us$datetime,"%H")==21),]
+probinter4<-aggregate(probinter3$city,by=list(city=probinter3$city),FUN=length)
+probinter5 <- datos_us[which(datos_us$city != 'seattle'&format(datos_us$datetime,"%H")!=21),]
+probinter6<-aggregate(probinter5$city,by=list(city=probinter5$city),FUN=length)
+probinter5 <- datos_us[which(datos_us$city != 'seattle'&format(datos_us$datetime,"%H")!=21),]
+probinter6<-aggregate(probinter5$city,by=list(city=probinter5$city),FUN=length)
+probinter7 <- datos_us[which(datos_us$city != 'seattle'&format(datos_us$datetime,"%H")==21),]
+probinter8<-aggregate(probinter7$city,by=list(city=probinter7$city),FUN=length)
+probinter9 <- datos_us[which(datos_us$city != 'seattle'&format(datos_us$datetime,"%H")==21&(datos_us$shape == 'light'|datos_us$shape=='unknown')),]
+probinter10<-aggregate(probinter9$city,by=list(city=probinter9$city),FUN=length)
+probinter11 <- datos_us[which(datos_us$city == 'seattle'&format(datos_us$datetime,"%H")!=21&(datos_us$shape != 'light'&datos_us$shape!='unknown')&datos_us$`duration (seconds)`>10),]
+probinter12<-aggregate(probinter11$city,by=list(city=probinter11$city),FUN=length)
+
+print(paste("Ver un UFO en seattle a las 21:00 es del",(sum(probinter2$x)/avistTot)*100,"%"))
+print(paste("Ver un UFO en seattle o verlo a las 21:00 es del",(sum(probinter4$x)/avistTot)*100,"%"))
+print(paste("Ver un UFO en una ciudad que no sea seattle a una hora distinta a las 21:00 es del",(sum(probinter6$x)/avistTot)*100,"%"))
+print(paste("Ver un UFO en una ciudad que no sea seattle a las 21:00 es del",(sum(probinter8$x)/avistTot)*100,"%"))
+print(paste("Ver un UFO en una ciudad distinta de seattle a las 21:00 con una forma que sea lumínica o desconocida",(sum(probinter10$x)/avistTot)*100,"%"))
+print(paste("Ver un UFO en seattle a una hora distinta de las 21:00 con una forma que sea distinta de lumínica o desconocida pero con una duracion de mas de 10 segundos",(sum(probinter12$x)/avistTot)*100,"%"))
+
+
+
+```
+
+
 ### Probabilidad Condicionada
 
 # Tema 5 - Variables Aleatorias y Modelos de Probabilidad (Sergio)
