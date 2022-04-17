@@ -241,63 +241,165 @@ lines(breaks, longitude.cumfreq)
 
 # Tema 4 - Probabilidad (Fonsi)
 
-### Probabilidad por pais
-Probabilidad de ser de cada pais en caso de avistar un ovni.
+Si quieres tratar de avistar un UFO la siguiente información que te proporcionamos te será de suma utilidad, como el pais, estado y ciudad donde debes ir para realizar un avistamiento, además de la forma que debes buscar y las horas a las que debes buscarlo, además de otros datos curiosos como la duración y los años que fueron más probables de avistar.
 
 ```{r}
-numAvistamientos <- sum(by_country$x)
+dat <- read.csv("scrubbed.csv")
+dat_country<-aggregate(dat$country, by=list(Country = dat$country), FUN=length)
+dat$country <- ifelse(dat$country=="","otros",dat$country)
+numAvistamientos<-sum(dat_country$x)
+proobau1<-dat_country[which(dat_country$Country == 'au'),]
+proobau2<-dat_country[which(dat_country$Country == 'ca'),]
+proobau3<-dat_country[which(dat_country$Country == 'de'),]
+proobau4<-dat_country[which(dat_country$Country == 'gb'),]
+proobau5<-dat_country[which(dat_country$Country == 'us'),]
+proobau6<-dat_country[which(dat_country$Country == ''),]
+probbauval1<-(proobau1$x/numAvistamientos)*100
+probbauval2<-(proobau2$x/numAvistamientos)*100
+probbauval3<-(proobau3$x/numAvistamientos)*100
+probbauval4<-(proobau4$x/numAvistamientos)*100
+probbauval5<-(proobau5$x/numAvistamientos)*100
+probbauval6<-(proobau6$x/numAvistamientos)*100
 
-probAvis <- (by_country[which(by_country$Country == 'au'),]$x/numAvistamientos)*100
-print(paste("La probabilidad de avistar un ovni en Australia es del: ",probAvis,"%"))
+maxcountry<-sum(by_country$x)
 
-probAvis <- (by_country[which(by_country$Country == 'ca'),]$x/numAvistamientos)*100
-print(paste("La probabilidad de avistar un ovni en Canadá es del: ",probAvis,"%"))
 
-probAvis <- (by_country[which(by_country$Country == 'de'),]$x/numAvistamientos)*100
-print(paste("La probabilidad de avistar un ovni en Alemania es del: ",probAvis,"%"))
+ggplot(by_country, aes(x=Country, y=(x/maxcountry)*100, fill=Country)) +
+  geom_bar(stat="identity", width=1) +
+  xlab('Paises') +
+  ylab('Probabilidad') +
+  guides(fill = guide_legend(title = "Country" ))
 
-probAvis <- (by_country[which(by_country$Country == 'gb'),]$x/numAvistamientos)*100
-print(paste("La probabilidad de avistar un ovni en Gran Bretaña es del: ",probAvis,"%"))
 
-probAvis <- (by_country[which(by_country$Country == 'us'),]$x/numAvistamientos)*100
-print(paste("La probabilidad de avistar un ovni en Gran Bretaña es del: ",probAvis,"%"))
+print(paste("La probabilidad de avistar un ovni en Australia es del: ",probbauval1,"%"))
 
-probAvis <- (by_country[which(by_country$Country == 'otros'),]$x/numAvistamientos)*100
-print(paste("La probabilidad de avistar un ovni en Gran Bretaña es del: ",probAvis,"%"))
+print(paste("La probabilidad de avistar un ovni en Canadá es del: ",probbauval2,"%"))
+
+print(paste("La probabilidad de avistar un ovni en Alemania es del: ",probbauval3,"%"))
+
+print(paste("La probabilidad de avistar un ovni en Gran Bretaña es del: ",probbauval4,"%"))
+
+print(paste("La probabilidad de avistar un ovni en Estados Unidos es del: ",probbauval5,"%"))
+
+print(paste("La probabilidad de avistar un ovni en otros países es del: ",probbauval6,"%"))
 ```
-### Probabilidad por estado
-Debido a que es en Estados Unidos donde hay mayor probabilidad de avistar un UFO vamos a calcular los estados donde es mas probable lograrlo.
+
+Debido a que es  en Estados Unidos donde hay mayor probabilidad de avistar un UFO vamos a calcular los estados donde es mas probable lograrlo
+
 
 ```{r}
-datos_us <- datos[which(datos$country == 'us'),]
-datos_us <- datos_us %>% select(-country)
+datos <- read.csv("scrubbed.csv")
+datos$state <- ifelse(datos$state=="","otros",datos$state)
+datos_usProbstate <- datos[which(datos$country == 'us'),]
 
-by_state <- aggregate(datos_us$city, by=list(State = datos_us$state), FUN=length)
-by_state <- by_state[with(by_state,order(-x)),]
-avistTot <- by_country[which(by_country$Country == 'us'),]$x
+datos_usProbstate <- datos %>% select(-country)
 
-print(paste("El estado con mayor probabilidad de avistar un ovni es",(by_state[1,])$State,"con una probabilidad de un ",((by_state[1,])$x/avistTot)*100,"%"))
+datos_usProbstate <- datos[sample(nrow(datos_us), 1000), ]
 
-```
+by_stateProb <- aggregate(datos_usProbstate$state, by=list(State = datos_usProbstate$state), FUN=length)
 
-A continuación se muestra una gráfica con los estados donde mayor probabilidad hay de avistar un ovni.
+avistTot<-sum(by_stateProb$x)
+mostseekstate<-by_stateProb[which(by_stateProb$x>16),]
 
-```{r}
-ggplot(by_state[1:10,], aes(x=(by_state[1:10,])$State, y=((by_state[1:10,])$x/avistTot)*100, fill=(by_state[1:10,])$State)) +
+maxstate<-by_stateProb[which(by_stateProb$x == max(by_stateProb$x)),]
+print(paste("El estado con mayor probabilidad de avistar un ovni es",maxstate$State,"con una probabilidad de un ",(maxstate$x/avistTot)*100,"%"))
+print(paste("A continuación se muestra una gráfica con los estados donde mayor probabilidad hay de avistar un ovni"))
+
+ggplot(mostseekstate, aes(x=mostseekstate$State, y=(mostseekstate$x/avistTot)*100, fill=mostseekstate$State)) +
   geom_bar(stat="identity", width=1) +
   xlab('') +
   ylab('Probabilidad') +
   theme(axis.text.x=element_blank())+
-  guides(fill = guide_legend(title = "Estado" ))
+  guides(fill = guide_legend(title = "Estados" ))
 
 ```
-### Probabilidad por año
+Ya que hemos calculado los estados haremos lo mismo con las ciudades
 
 ```{r}
-anios<- aggregate(datos_us$city, by=list(Date = format(datos_us$datetime,"%Y")), FUN=length)
-maxanio<-anios[which(anios$x == max(anios$x)),]
+datos <- read.csv("scrubbed.csv")
 
+datos_usProb <- datos[which(datos$country == 'us'),]
+
+datos_usProb <- datos %>% select(-country)
+
+datos_usProb <- datos[sample(nrow(datos_us), 1000), ]
+
+by_cityProb <- aggregate(datos_usProb$city, by=list(City = datos_usProb$city), FUN=length)
+
+avistTot<-sum(by_cityProb$x)
+mostseek<-by_cityProb[which(by_cityProb$x>4),]
+
+maxcity<-by_cityProb[which(by_cityProb$x == max(by_cityProb$x)),]
+print(paste("La ciudad con mayor probabilidad de avistar un ovni es",maxcity$City,"con una probabilidad de un ",(maxcity$x/avistTot)*100,"%"))
+print(paste("A continuación se muestra una gráfica con las ciudades donde mayor probabilidad hay de avistar un ovni"))
+ggplot(mostseek, aes(x=City, y=(x/avistTot)*100, fill=City)) +
+  geom_bar(stat="identity", width=1) +
+  xlab('') +
+  ylab('Probabilidad') +
+  theme(axis.text.x=element_blank())+
+  guides(fill = guide_legend(title = "Ciudades" ))
+
+```
+
+
+
+En cuanto a la forma que tienes que buscar en el cielo para lograr un avistamiento exitoso
+```{r}
+by_shape <- aggregate(datos_us$shape, by=list(shape = datos_us$shape), FUN=length)
+by_shape$shape <- ifelse(by_shape$shape=="","otros",by_shape$shape)
+
+max_shape<-sum(by_shape$x)
+maxshape<-by_shape[which(by_shape$x == max(by_shape$x)),]
+minshape<-by_shape[which(by_shape$x == min(by_shape$x)),]
+print(paste("El ovni mas probabilidad de ser avistado son aquellos ovnis con forma",maxshape$shape,"con una probabilidad del",(maxshape$x/avistTot)*100,"%"))
+print(paste("Mientras que los más raros con mayor dificultad de avistamiento son aquellos con forma"))
+print (paste(minshape$shape))
+print(paste("con una probabilidad de avistamiento del",(minshape$x[1]/avistTot)*100,"%"))
+
+ggplot(by_shape, aes(x=by_shape$shape,y=(by_shape$x/max_shape)*100,fill=by_shape$shape)) +
+  geom_bar(stat="identity", width=1) +
+  xlab('') +
+  ylab('Avistamientos') +
+theme(axis.text.x=element_blank())+
+  guides(fill = guide_legend(title = "Formas" ))
+
+
+```
+La hora también es importante, hay que saber cuando buscar y cuando descansar
+```{r}
+by_horas<- aggregate(datos_us$datetime, by=list(Hour = format(datos_us$datetime,"%H")), FUN=length)
+maxhora<-by_horas[which(by_horas$x == max(by_horas$x)),]
+maxhour<-sum(by_horas$x)
+print(paste("La hora en la que es más probable avistar un ovni son las",maxhora$Hour,':00',"con una probabilidad del",(maxhora$x/avistTot)*100,"%"))
+plot(by_horas$Hour,(by_horas$x/maxhour)*100,type="s",col="dark red", xlab = "Horas del día", ylab = "Probabilidad", main = "Probabilidad de avistamiento por hora")
+```
+
+También es interesante ver cuando hubo una mayor probabilidad de avistar un ovni
+```{r}
+anios<- aggregate(datos_us$datetime, by=list(Date = format(datos_us$datetime,"%Y")), FUN=length)
+
+maxanio<-anios[which(anios$x == max(anios$x)),]
+maxyear<-sum(anios$x)
 print(paste("El año con mayor probabilidad en caso de avistamiento fué",maxanio$Date,"con una probabilidad del",(maxanio$x/avistTot)*100,"%"))
+plot(anios$Date,(anios$x/maxyear)*100,type="l",col="dark blue", xlab = "Linea temporal", ylab = "Probabilidad", main = "Probabilidad de avistamientos por año")
+```
+Para finalizar observamos la probabilidad de lograr un avistamiento de larga duración
+```{r}
+durability<- aggregate(datos_us$`duration (seconds)`, by=list(duracion = datos_us$`duration (seconds)`), FUN=length)
+                       
+maxdur<-durability[which(durability$x>1),]
+maxdur3<-durability[which(durability$x<=60),]
+maxdur2<-durability[which(durability$x<=10),]
+maxdur4<-durability[which(durability$x>60),]
+sumaprobduracion<-sum(durability$x)
+sumaprobduracion2<-sum(maxdur2$x)
+sumaprobduracion3<-sum(maxdur3$x)
+sumaprobduracion4<-sum(maxdur4$x)
+
+print(paste("La probabilidad de ver un UFO durante menos de 10 segundos es del",(sumaprobduracion2/sumaprobduracion)*100,"%"))
+print(paste("La probabilidad de ver un UFO durante menos de un minuto es del",(sumaprobduracion3/sumaprobduracion)*100,"%"))
+print(paste("La probabilidad de ver un UFO durante mas de un minuto es del",(sumaprobduracion4/sumaprobduracion)*100,"%"))
+plot(maxdur$duracion,(maxdur$x/sumaprobduracion)*100,type="l",col="blue", xlab = "Segundos", ylab = "Probabilidad", main = "Probabilidad de avistamientos por más de un segundo")
 ```
 # TODO (FONSI)
 ### Operaciones con Sucesos
