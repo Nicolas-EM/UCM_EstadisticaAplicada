@@ -31,22 +31,21 @@ library(dplyr)
 datos <- datos %>% select(-one_of('duration..seconds.', 'duration..hours.min.', 'date.posted'))
 ```
 
-Analisando los datos por pais, podemos ver que la mayoria de los OVNIs reportados son en EEUU. Usaremos la libreria *ggplot2* para generar diagrama, y representamos el diagrama de numero de OVNIs por pais
+Analisando los datos por pais, podemos ver que la mayoria de los OVNIs reportados son en EEUU. Usaremos la libreria *ggplot2* para generar un diagrama representando el numero de OVNIs reportados por pais.
 
 ```{r}
 by_country <- aggregate(datos$country, by=list(Country = datos$country), FUN=length)
 
 library(ggplot2)
 
-ggplot(by_country, aes(x="", y=by_country$x, fill=by_country$Country)) +
+ggplot(by_country, aes(x=by_country$Country, y=by_country$x, fill=by_country$Country)) +
   geom_bar(stat="identity", width=1) +
-  coord_polar("y", start=0) +
-  xlab("") +
-  ylab("") +
-  guides(fill = guide_legend(title = "Pais"))
+  xlab('Paises') +
+  ylab('Avistamientos') +
+  guides(fill = guide_legend(title = "Country" ))
 ```
 
-Por eso, hemos decidido hacer nuestros analisis sobre datos solamente de EEUU. Tomamos una prueba de tamaño 1000
+Por eso, hemos decidido hacer nuestros analisis sobre datos solamente de EEUU. Tomamos una prueba de tamaño 1000.
 
 ```{r}
 datos_us <- datos[which(datos$country == 'us'),]
@@ -56,58 +55,49 @@ datos_us <- datos_us %>% select(-country)
 datos_us <- datos_us[sample(nrow(datos_us), 1000), ]
 ```
 
+
 # Tema 3 - Estadística Descriptiva y Regresión (Axel)
-De la prueba de 1000 datos, se ha hecho el análisis solamente de las variables cuantitativas, las cuales son: ("datetime, latitude, longitude, duration(seconds)")
-Con el comando names(object...) se puede ver todas las columnas del fichero de datos y las referenciadas anteriormente
+De la prueba de 1000 datos, se ha hecho el análisis solamente de las variables cuantitativas, las cuales son: ("datetime, latitude, longitude, duration(seconds)").
+
+Con el comando names(object...) se puede ver todas las columnas del fichero de datos y las referenciadas anteriormente.
 ```{r}
 names(datos_us)
 ```
 
+
 ## Medidas de Posición - Tendencia Central y No Central
 
-Con `summary(object...)` podemos ver la media, mediana y percentiles de varios datos, para calcular la moda usamos la funcion *mode*
+Con `summary(object...)` podemos ver la media, mediana y percentiles de varios datos, para calcular la moda usamos la funcion *mode*.
 
-#datetime
+```{r}
+mode <- function(x) {
+  ux <- unique(x)
+  ux[which.max(tabulate(match(x, ux)))]
+}
+```
+
+
+### datetime
 ```{r}
 summary(datos_us$datetime)
 
-mode <- function(x) {
-  ux <- unique(x)
-  ux[which.max(tabulate(match(x, ux)))]
-}
-
 print(paste("Moda: ", mode(datos_us$datetime)))
 ```
-#latitude
+### latitude
 ```{r}
 summary(datos_us$latitude)
 
-mode <- function(x) {
-  ux <- unique(x)
-  ux[which.max(tabulate(match(x, ux)))]
-}
-
 print(paste("Moda: ", mode(datos_us$latitude)))
 ```
-#longitude
+### longitude
 ```{r}
 summary(datos_us$longitude)
 
-mode <- function(x) {
-  ux <- unique(x)
-  ux[which.max(tabulate(match(x, ux)))]
-}
-
 print(paste("Moda: ", mode(datos_us$longitude)))
 ```
-#duration (seconds)
+### duration (seconds)
 ```{r}
 summary(datos_us$'duration (seconds)')
-
-mode <- function(x) {
-  ux <- unique(x)
-  ux[which.max(tabulate(match(x, ux)))]
-}
 
 print(paste("Moda: ", mode(datos_us$'duration (seconds)')))
 ```
@@ -122,7 +112,13 @@ No se ha considerado necesario calcular la varianza y desviación poblacional
 | Cuasidesviación típica | sd(x) |
 | Coeficiente de variación | coef_var(x) |
 
-#duration (seconds)
+```{r}
+coef_var <- function(x) {
+  sd(x) / mean(x)
+}
+```
+
+### duration (seconds)
 ```{r}
 varianza <- var(datos_us$'duration (seconds)')
 print(paste("Cuasivarianza: ", varianza))
@@ -130,14 +126,11 @@ print(paste("Cuasivarianza: ", varianza))
 sd <- sd(datos_us$'duration (seconds)')
 print(paste("Cuasidesviación típica: ", sd))
 
-coef_var <- function(x) {
-  sd(x) / mean(x)
-}
 cv <- coef_var(datos_us$'duration (seconds)')
 print(paste("Coeficiente de variación: ", cv))
 
 ```
-#latitude
+### latitude
 ```{r}
 varianza <- var(datos_us$latitude)
 print(paste("Cuasivarianza: ", varianza))
@@ -145,14 +138,11 @@ print(paste("Cuasivarianza: ", varianza))
 sd <- sd(datos_us$latitude)
 print(paste("Cuasidesviación típica: ", sd))
 
-coef_var <- function(x) {
-  sd(x) / mean(x)
-}
 cv <- coef_var(datos_us$latitude)
 print(paste("Coeficiente de variación: ", cv))
 
 ```
-#longitude
+### longitude
 ```{r}
 varianza <- var(datos_us$longitude)
 print(paste("Cuasivarianza: ", varianza))
@@ -160,24 +150,22 @@ print(paste("Cuasivarianza: ", varianza))
 sd <- sd(datos_us$longitude)
 print(paste("Cuasidesviación típica: ", sd))
 
-coef_var <- function(x) {
-  sd(x) / mean(x)
-}
 cv <- coef_var(datos_us$longitude)
 print(paste("Coeficiente de variación: ", cv))
 
 ```
-#datetime
+### datetime
+Como no se pueden dividir fechas, no calculamos el *Coeficiente de variación* para datetime.
+
 ```{r}
 varianza <- var(datos_us$datetime)
 print(paste("Cuasivarianza: ", varianza))
 
 sd <- sd(datos_us$datetime)
 print(paste("Cuasidesviación típica: ", sd))
-
 ```
-## Medidas de Forma(Usar si no funciona: install.packages("moments"))
-#latitude
+## Medidas de Forma
+### latitude
 Al calcular la asimetría y curtosis de la latitud determinamos que:
 *Obtenemos una asimetría negativa, por tanto la mayoría de datos se encuentran a la derecha de la media.
 *Obtenemos una curtosis mayor que cero, por tanto, hay una mayor concentración
@@ -190,7 +178,7 @@ print(skewness(x))
 print(mean(x))
 hist(x)
 ```
-#longitude
+### longitude
 Al calcular la asimetría y curtosis de la latitud determinamos que:
 *Obtenemos una asimetría negativa, por tanto la mayoría de datos se encuentran a la derecha de la media.
 *Obtenemos una curtosis mayor que cero, por tanto, hay una mayor concentración
@@ -203,7 +191,7 @@ print(skewness(x))
 print(mean(x))
 hist(x)
 ```
-#datetime
+### datetime
 Al calcular la asimetría y curtosis de la latitud determinamos que:
 *Obtenemos una asimetría negativa, por tanto la mayoría de datos se encuentran a la derecha de la media.
 *Obtenemos una curtosis mayor que cero, por tanto, hay una mayor concentración
@@ -215,7 +203,7 @@ print(kurtosis(x))
 print(skewness(x))
 hist(x, 50)
 ```
-#duration (seconds)
+### duration (seconds)
 Al calcular la asimetría y curtosis de la latitud determinamos que:
 *Obtenemos una asimetría positiva, por tanto la mayoría de datos se encuentran a la izquierda de la media.
 *Obtenemos una curtosis mayor que cero, por tanto, hay una mayor concentración
@@ -226,30 +214,24 @@ x <- (datos_us$'duration (seconds)')
 print(kurtosis(x))
 print(skewness(x))
 print(mean(x))
-hist(x)
 ```
-##Gráficos asociados a la Tabla de Frecuencias para algunos datos(excepto histogramas, usados anteriormente para ver mejor las medidas de forma)
-#Poligonos absolutos
-#latitud
+## Gráficos 
+Asociados a la Tabla de Frecuencias para algunos datos (excepto histogramas, usados anteriormente para ver mejor las medidas de forma)
+### latitud
 ```{r}
-lat <- datos_us$latitude
 breaks <- seq(0, 90, by=10)
-lat.cut <- cut(lat, breaks, right = FALSE)
-lat.freq <- table(lat.cut)
-lat.cumfreq <- c(0,cumsum(lat.freq))
+lat.cumfreq <- c(0,cumsum(table(cut(datos_us$latitude, breaks, right = FALSE))))
+
 plot(breaks, lat.cumfreq,
      main="Latitud de los ovnis",
      xlab = "Latitud",
      ylab = "Latitudes acumuladas")
 lines(breaks, lat.cumfreq)
 ```
-#longitude
+### longitude
 ```{r}
-longitude <- datos_us$longitude
 breaks <- seq(-200, 100, by=10)
-longitude.cut <- cut(longitude, breaks, right = FALSE)
-longitude.freq <- table(longitude.cut)
-longitude.cumfreq <- c(0,cumsum(longitude.freq))
+longitude.cumfreq <- c(0,cumsum(table(cut(datos_us$longitude, breaks, right = FALSE))))
 plot(breaks, longitude.cumfreq,
      main="Longitud de los ovnis",
      xlab = "Longitud",
@@ -259,99 +241,67 @@ lines(breaks, longitude.cumfreq)
 
 # Tema 4 - Probabilidad (Fonsi)
 
-Probabilidad de ser de cada pais en caso de avistar un ovni
+### Probabilidad por pais
+Probabilidad de ser de cada pais en caso de avistar un ovni.
 
 ```{r}
-dat <- read.csv("scrubbed.csv")
-dat_country<-aggregate(dat$country, by=list(Country = dat$country), FUN=length)
-dat$country <- ifelse(dat$country=="","otros",dat$country)
-numAvistamientos<-sum(dat_country$x)
-proobau1<-dat_country[which(dat_country$Country == 'au'),]
-proobau2<-dat_country[which(dat_country$Country == 'ca'),]
-proobau3<-dat_country[which(dat_country$Country == 'de'),]
-proobau4<-dat_country[which(dat_country$Country == 'gb'),]
-proobau5<-dat_country[which(dat_country$Country == 'us'),]
-proobau6<-dat_country[which(dat_country$Country == ''),]
-probbauval1<-(proobau1$x/numAvistamientos)*100
-probbauval2<-(proobau2$x/numAvistamientos)*100
-probbauval3<-(proobau3$x/numAvistamientos)*100
-probbauval4<-(proobau4$x/numAvistamientos)*100
-probbauval5<-(proobau5$x/numAvistamientos)*100
-probbauval6<-(proobau6$x/numAvistamientos)*100
+numAvistamientos <- sum(by_country$x)
 
+probAvis <- (by_country[which(by_country$Country == 'au'),]$x/numAvistamientos)*100
+print(paste("La probabilidad de avistar un ovni en Australia es del: ",probAvis,"%"))
 
+probAvis <- (by_country[which(by_country$Country == 'ca'),]$x/numAvistamientos)*100
+print(paste("La probabilidad de avistar un ovni en Canadá es del: ",probAvis,"%"))
 
+probAvis <- (by_country[which(by_country$Country == 'de'),]$x/numAvistamientos)*100
+print(paste("La probabilidad de avistar un ovni en Alemania es del: ",probAvis,"%"))
 
-ggplot(by_country, aes(x=by_country$Country, y=by_country$x, fill=by_country$Country)) +
-  geom_bar(stat="identity", width=1) +
-  xlab('Paises') +
-  ylab('Avistamientos') +
-  guides(fill = guide_legend(title = "Country" ))
+probAvis <- (by_country[which(by_country$Country == 'gb'),]$x/numAvistamientos)*100
+print(paste("La probabilidad de avistar un ovni en Gran Bretaña es del: ",probAvis,"%"))
 
+probAvis <- (by_country[which(by_country$Country == 'us'),]$x/numAvistamientos)*100
+print(paste("La probabilidad de avistar un ovni en Gran Bretaña es del: ",probAvis,"%"))
 
-print(paste("La probabilidad de avistar un ovni en Australia es del: ",probbauval1,"%"))
+probAvis <- (by_country[which(by_country$Country == 'otros'),]$x/numAvistamientos)*100
+print(paste("La probabilidad de avistar un ovni en Gran Bretaña es del: ",probAvis,"%"))
+```
+### Probabilidad por estado
+Debido a que es en Estados Unidos donde hay mayor probabilidad de avistar un UFO vamos a calcular los estados donde es mas probable lograrlo.
 
-print(paste("La probabilidad de avistar un ovni en Canadá es del: ",probbauval2,"%"))
+```{r}
+datos_us <- datos[which(datos$country == 'us'),]
+datos_us <- datos_us %>% select(-country)
 
-print(paste("La probabilidad de avistar un ovni en Alemania es del: ",probbauval3,"%"))
+by_state <- aggregate(datos_us$city, by=list(State = datos_us$state), FUN=length)
+by_state <- by_state[with(by_state,order(-x)),]
+avistTot <- by_country[which(by_country$Country == 'us'),]$x
 
-print(paste("La probabilidad de avistar un ovni en Gran Bretaña es del: ",probbauval4,"%"))
+print(paste("El estado con mayor probabilidad de avistar un ovni es",(by_state[1,])$State,"con una probabilidad de un ",((by_state[1,])$x/avistTot)*100,"%"))
 
-print(paste("La probabilidad de avistar un ovni en Estados Unidos es del: ",probbauval5,"%"))
-
-print(paste("La probabilidad de avistar un ovni en otros países es del: ",probbauval6,"%"))
 ```
 
-Debido a que es  en Estados Unidos donde hay mayor probabilidad de avistar un UFO vamos a calcular las ciudades donde es mas probable lograrlo
-
+A continuación se muestra una gráfica con los estados donde mayor probabilidad hay de avistar un ovni.
 
 ```{r}
-by_city <- aggregate(datos_us$city, by=list(City = datos_us$city), FUN=length)
-
-avistTot<-sum(by_city$x)
-mostseek<-by_city[which(by_city$x>200),]
-
-maxcity<-by_city[which(by_city$x == max(by_city$x)),]
-print(paste("La ciudad con mayor probabilidad de avistar un ovni es",maxcity$City,"con una probabilidad de un ",(maxcity$x/avistTot)*100,"%"))
-print(paste("A continuación se muestra una gráfica con las ciudades donde mayor probabilidad hay de avistar un ovni"))
-ggplot(mostseek, aes(x=mostseek$City, y=(mostseek$x/avistTot)*100, fill=mostseek$City)) +
+ggplot(by_state[1:10,], aes(x=(by_state[1:10,])$State, y=((by_state[1:10,])$x/avistTot)*100, fill=(by_state[1:10,])$State)) +
   geom_bar(stat="identity", width=1) +
   xlab('') +
   ylab('Probabilidad') +
   theme(axis.text.x=element_blank())+
-  guides(fill = guide_legend(title = "Pais" ))
+  guides(fill = guide_legend(title = "Estado" ))
 
 ```
-
+### Probabilidad por año
 
 ```{r}
 anios<- aggregate(datos_us$city, by=list(Date = format(datos_us$datetime,"%Y")), FUN=length)
 maxanio<-anios[which(anios$x == max(anios$x)),]
 
 print(paste("El año con mayor probabilidad en caso de avistamiento fué",maxanio$Date,"con una probabilidad del",(maxanio$x/avistTot)*100,"%"))
-plot(anios$Date,anios$x,type="l",col="blue", xlab = "Linea temporal", ylab = "Avistamientos", main = "Número de avistamientos por año")
 ```
-
-
-```{r}
-by_shape <- aggregate(datos_us$shape, by=list(shape = datos_us$shape), FUN=length)
-max_shape<-sum(by_shape$x)
-maxshape<-by_shape[which(by_shape$x == max(by_shape$x)),]
-minshape<-by_shape[which(by_shape$x == min(by_shape$x)),]
-print(paste("El ovni mas probabilidad de ser avistado son aquellos ovnis con forma",maxshape$shape,"con una probabilidad del",(maxshape$x/avistTot)*100,"%"))
-print(paste("Mientras que los más raros con mayor dificultad de avistamiento son aquellos con forma"))
-print (paste(minshape$shape))
-print(paste("con una probabilidad de avistamiento del",(minshape$x[1]/avistTot)*100,"%"))
-
-ggplot(by_shape, aes(x=by_shape$shape,y=(by_shape$x/max_shape)*100,fill=by_shape$shape)) +
-  geom_bar(stat="identity", width=1) +
-  xlab('') +
-  ylab('Avistamientos') +
-theme(axis.text.x=element_blank())+
-  guides(fill = guide_legend(title = "Formas" ))
-
-
-```
+# TODO (FONSI)
+### Operaciones con Sucesos
+### Probabilidad Condicionada
 
 # Tema 5 - Variables Aleatorias y Modelos de Probabilidad (Sergio)
 
@@ -359,24 +309,21 @@ theme(axis.text.x=element_blank())+
 
 Vamos a construir un intervalo de confianza del 95% para la duracion media de los avistamientos en EEUU.
 ```{r}
-datos <- read.csv("scrubbed.csv")#dataframe
-datos_us <- datos[which(datos$country == "us"), ]#filtro por pais Estados Unidos
-datos_us$"duration..seconds." <- as.integer(datos_us$"duration..seconds.")#convierto los valores a integer
-datos_us <- datos_us[!is.na(datos_us$duration..seconds.), ]#eliminar NAs (en caso de que no se pudiera convertir a int algun valor)
-retval <- subset(datos_us, duration..seconds. < 7201, select = c(state, duration..seconds.))#filtro por duracion menor o igual a 7200, para descartar valores muy altos que son inútiles nuestro análisis
+#filtramos por duracion menor o igual a 7200, para descartar valores muy altos que son inútiles en nuestro análisis
+retval <- subset(datos_us, datos_us$`duration (seconds)` < 7201, select = c(state, `duration (seconds)`))
 
-intervalo <- t.test(retval$duration..seconds., conf.level = 0.95)#sacamos el intervalo de confianza
+intervalo <- t.test(retval$'duration (seconds)', conf.level = 0.95)#sacamos el intervalo de confianza
 print(intervalo$conf.int)#intervalo de confianza
-print(mean(retval$duration..seconds.))#media
+print(mean(retval$'duration (seconds)'))#media
 
 print(paste("El resultado indica que la media de la variable duracion (seconds) es de ", mean(retval$duration..seconds.), " el cual se encuentra con una confianza del 95% en el intervalo ", intervalo$conf.int[1], " ", intervalo$conf.int[2]))
 
-car::qqPlot(retval$duration..seconds., pch=19,
+car::qqPlot(retval$'duration (seconds)', pch=19,
        main='QQplot para la duración de avistamientos',
        xlab='Cuantiles teóricos',
        ylab='Cuantiles muestrales')
 
-hist(retval$duration..seconds., freq=TRUE,
+hist(retval$'duration (seconds)', freq=TRUE,
      main='Histograma para la duración de avistamientos',
      xlab='Duracion (s)',
      ylab='Frecuencia')
