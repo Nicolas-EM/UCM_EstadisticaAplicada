@@ -249,20 +249,29 @@ dat_country<-aggregate(dat$country, by=list(Country = dat$country), FUN=length)
 dat$country <- ifelse(dat$country=="","otros",dat$country)
 numAvistamientos<-sum(dat_country$x)
 proobau1<-dat_country[which(dat_country$Country == 'au'),]
+probbauval1<-(proobau1$x/numAvistamientos)*100
+print(paste("La probabilidad de avistar un ovni en Australia es del: ",probbauval1,"%"))
+
 proobau2<-dat_country[which(dat_country$Country == 'ca'),]
+probbauval1<-(proobau1$x/numAvistamientos)*100
+print(paste("La probabilidad de avistar un ovni en Canadá es del: ",probbauval1,"%"))
+
 proobau3<-dat_country[which(dat_country$Country == 'de'),]
+probbauval1<-(proobau1$x/numAvistamientos)*100
+print(paste("La probabilidad de avistar un ovni en Alemania es del: ",probbauval1,"%"))
+
 proobau4<-dat_country[which(dat_country$Country == 'gb'),]
+probbauval1<-(proobau1$x/numAvistamientos)*100
+print(paste("La probabilidad de avistar un ovni en Gran Bretaña es del: ",probbauval1,"%"))
+
 proobau5<-dat_country[which(dat_country$Country == 'us'),]
+probbauval1<-(proobau1$x/numAvistamientos)*100
+print(paste("La probabilidad de avistar un ovni en Estados Unidos es del: ",probbauval1,"%"))
+
 proobau6<-dat_country[which(dat_country$Country == ''),]
 probbauval1<-(proobau1$x/numAvistamientos)*100
-probbauval2<-(proobau2$x/numAvistamientos)*100
-probbauval3<-(proobau3$x/numAvistamientos)*100
-probbauval4<-(proobau4$x/numAvistamientos)*100
-probbauval5<-(proobau5$x/numAvistamientos)*100
-probbauval6<-(proobau6$x/numAvistamientos)*100
-
+print(paste("La probabilidad de avistar un ovni en otros países es del: ",probbauval1,"%"))
 maxcountry<-sum(by_country$x)
-
 
 ggplot(by_country, aes(x=Country, y=(x/maxcountry)*100, fill=Country)) +
   geom_bar(stat="identity", width=1) +
@@ -271,37 +280,22 @@ ggplot(by_country, aes(x=Country, y=(x/maxcountry)*100, fill=Country)) +
   guides(fill = guide_legend(title = "Country" ))
 
 
-print(paste("La probabilidad de avistar un ovni en Australia es del: ",probbauval1,"%"))
 
-print(paste("La probabilidad de avistar un ovni en Canadá es del: ",probbauval2,"%"))
 
-print(paste("La probabilidad de avistar un ovni en Alemania es del: ",probbauval3,"%"))
-
-print(paste("La probabilidad de avistar un ovni en Gran Bretaña es del: ",probbauval4,"%"))
-
-print(paste("La probabilidad de avistar un ovni en Estados Unidos es del: ",probbauval5,"%"))
-
-print(paste("La probabilidad de avistar un ovni en otros países es del: ",probbauval6,"%"))
 ```
 
 Debido a que es  en Estados Unidos donde hay mayor probabilidad de avistar un UFO vamos a calcular los estados donde es mas probable lograrlo
 
 
 ```{r}
-datos <- read.csv("scrubbed.csv")
-datos$state <- ifelse(datos$state=="","otros",datos$state)
-datos_usProbstate <- datos[which(datos$country == 'us'),]
+datos_us$state <- ifelse(datos_us$state=="","otros",datos_us$state)
 
-datos_usProbstate <- datos %>% select(-country)
+by_state <- aggregate(datos_us$state, by=list(State = datos_us$state), FUN=length)
 
-datos_usProbstate <- datos[sample(nrow(datos_us), 1000), ]
+avistTot<-sum(by_state$x)
+mostseekstate<-by_state[which(by_state$x>16),]
 
-by_stateProb <- aggregate(datos_usProbstate$state, by=list(State = datos_usProbstate$state), FUN=length)
-
-avistTot<-sum(by_stateProb$x)
-mostseekstate<-by_stateProb[which(by_stateProb$x>16),]
-
-maxstate<-by_stateProb[which(by_stateProb$x == max(by_stateProb$x)),]
+maxstate<-by_state[which(by_state$x == max(by_state$x)),]
 print(paste("El estado con mayor probabilidad de avistar un ovni es",maxstate$State,"con una probabilidad de un ",(maxstate$x/avistTot)*100,"%"))
 print(paste("A continuación se muestra una gráfica con los estados donde mayor probabilidad hay de avistar un ovni"))
 
@@ -316,20 +310,11 @@ ggplot(mostseekstate, aes(x=mostseekstate$State, y=(mostseekstate$x/avistTot)*10
 Ya que hemos calculado los estados haremos lo mismo con las ciudades
 
 ```{r}
-datos <- read.csv("scrubbed.csv")
+by_city <- aggregate(datos_us$city, by=list(City = datos_us$city), FUN=length)
+avistTot<-sum(by_city$x)
+mostseek<-by_city[which(by_city$x>4),]
 
-datos_usProb <- datos[which(datos$country == 'us'),]
-
-datos_usProb <- datos %>% select(-country)
-
-datos_usProb <- datos[sample(nrow(datos_us), 1000), ]
-
-by_cityProb <- aggregate(datos_usProb$city, by=list(City = datos_usProb$city), FUN=length)
-
-avistTot<-sum(by_cityProb$x)
-mostseek<-by_cityProb[which(by_cityProb$x>4),]
-
-maxcity<-by_cityProb[which(by_cityProb$x == max(by_cityProb$x)),]
+maxcity<-by_city[which(by_city$x == max(by_city$x)),]
 print(paste("La ciudad con mayor probabilidad de avistar un ovni es",maxcity$City,"con una probabilidad de un ",(maxcity$x/avistTot)*100,"%"))
 print(paste("A continuación se muestra una gráfica con las ciudades donde mayor probabilidad hay de avistar un ovni"))
 ggplot(mostseek, aes(x=City, y=(x/avistTot)*100, fill=City)) +
@@ -386,78 +371,67 @@ plot(anios$Date,(anios$x/maxyear)*100,type="l",col="dark blue", xlab = "Linea te
 Observamos la probabilidad de lograr un avistamiento de larga duración
 ```{r}
 durability<- aggregate(datos_us$`duration (seconds)`, by=list(duracion = datos_us$`duration (seconds)`), FUN=length)
-                       
-maxdur<-durability[which(durability$x>1),]
-maxdur3<-durability[which(durability$x<=60),]
-maxdur2<-durability[which(durability$x<=10),]
-maxdur4<-durability[which(durability$x>60),]
-sumaprobduracion<-sum(durability$x)
-sumaprobduracion2<-sum(maxdur2$x)
-sumaprobduracion3<-sum(maxdur3$x)
-sumaprobduracion4<-sum(maxdur4$x)
+  maxduracion<-sum(durability$x)  
+  maxdur<-durability[which(durability$x>1),]
+  
+durationProb<-durability[which(durability$x<=10),]
+sumaprobduracion<-sum(durationProb$x)
+print(paste("La probabilidad de ver un UFO durante menos de 10 segundos es del",(sumaprobduracion/maxduracion)*100,"%"))
+durationProb<-durability[which(durability$x<=60),]
+sumaprobduracion<-sum(durationProb$x)
+print(paste("La probabilidad de ver un UFO durante menos de un minuto es del",(sumaprobduracion/maxduracion)*100,"%"))
+durationProb<-durability[which(durability$x>60),]
+sumaprobduracion<-sum(durationProb$x)
+print(paste("La probabilidad de ver un UFO durante mas de un minuto es del",(sumaprobduracion/maxduracion)*100,"%"))
 
-print(paste("La probabilidad de ver un UFO durante menos de 10 segundos es del",(sumaprobduracion2/sumaprobduracion)*100,"%"))
-print(paste("La probabilidad de ver un UFO durante menos de un minuto es del",(sumaprobduracion3/sumaprobduracion)*100,"%"))
-print(paste("La probabilidad de ver un UFO durante mas de un minuto es del",(sumaprobduracion4/sumaprobduracion)*100,"%"))
 plot(maxdur$duracion,(maxdur$x/sumaprobduracion)*100,type="l",col="blue", xlab = "Segundos", ylab = "Probabilidad", main = "Probabilidad de avistamientos por más de un segundo")
 ```
 A continuación realizaremos algunas operaciones con sucesos de probabilidad
 ```{r}
-datos <- read.csv("scrubbed.csv")
+prob1 <- datos_us[which(datos_us$city == 'seattle'&format(datos_us$datetime,"%H")>12),]
+prob2<-aggregate(prob1$city,by=list(city=prob1$city),FUN=length)
+print(paste("La probabilidad de ver un UFO en seattle por la tarde",(sum(prob2$x)/avistTot)*100,"%"))
 
-datos_usProb <- datos[which(datos$country == 'us'),]
+prob1 <- datos_us[which(datos_us$city == 'seattle'|format(datos_us$datetime,"%H")==21),]
+prob2<-aggregate(prob1$city,by=list(city=prob1$city),FUN=length)
+print(paste("La probabilidad de ver un UFO en seattle o verlo a las 21:00 es del",(sum(prob2$x)/avistTot)*100,"%"))
 
-datos_usProb <- datos %>% select(-country)
+prob1 <- datos_us[which(datos_us$city != 'seattle'&format(datos_us$datetime,"%H")!=21),]
+prob2<-aggregate(prob1$city,by=list(city=prob1$city),FUN=length)
+print(paste("La probabilidad de ver un UFO en una ciudad que no sea seattle a una hora distinta a las 21:00 es del",(sum(prob2$x)/avistTot)*100,"%"))
 
-datos_usProb <- datos[sample(nrow(datos_us), 1000), ]
+prob1 <- datos_us[which(datos_us$city != 'seattle'&format(datos_us$datetime,"%H")==21),]
+prob2<-aggregate(prob1$city,by=list(city=prob1$city),FUN=length)
+print(paste("La probabilidad de ver un UFO en una ciudad que no sea seattle a las 21:00 es del",(sum(prob2$x)/avistTot)*100,"%"))
 
-probinter1 <- datos_us[which(datos_us$city == 'seattle'&format(datos_us$datetime,"%H")==22),]
-probinter2<-aggregate(probinter1$city,by=list(city=probinter1$city),FUN=length)
-probinter3 <- datos_us[which(datos_us$city == 'seattle'|format(datos_us$datetime,"%H")==21),]
-probinter4<-aggregate(probinter3$city,by=list(city=probinter3$city),FUN=length)
-probinter5 <- datos_us[which(datos_us$city != 'seattle'&format(datos_us$datetime,"%H")!=21),]
-probinter6<-aggregate(probinter5$city,by=list(city=probinter5$city),FUN=length)
-probinter5 <- datos_us[which(datos_us$city != 'seattle'&format(datos_us$datetime,"%H")!=21),]
-probinter6<-aggregate(probinter5$city,by=list(city=probinter5$city),FUN=length)
-probinter7 <- datos_us[which(datos_us$city != 'seattle'&format(datos_us$datetime,"%H")==21),]
-probinter8<-aggregate(probinter7$city,by=list(city=probinter7$city),FUN=length)
-probinter9 <- datos_us[which(datos_us$city != 'seattle'&format(datos_us$datetime,"%H")==21&(datos_us$shape == 'light'|datos_us$shape=='unknown')),]
-probinter10<-aggregate(probinter9$city,by=list(city=probinter9$city),FUN=length)
-probinter11 <- datos_us[which(datos_us$city == 'seattle'&format(datos_us$datetime,"%H")!=21&(datos_us$shape != 'light'&datos_us$shape!='unknown')&datos_us$`duration (seconds)`>10),]
-probinter12<-aggregate(probinter11$city,by=list(city=probinter11$city),FUN=length)
+prob1 <- datos_us[which(datos_us$city != 'seattle'&format(datos_us$datetime,"%H")==21&(datos_us$shape == 'light'|datos_us$shape=='unknown')),]
+prob2<-aggregate(prob1$city,by=list(city=prob1$city),FUN=length)
+print(paste("La probabilidad de ver un UFO en una ciudad distinta de seattle a las 21:00 con una forma que sea lumínica o desconocida",(sum(prob2$x)/avistTot)*100,"%"))
 
-print(paste("La probabilidad de ver un UFO en seattle a las 22:00 es del",(sum(probinter2$x)/avistTot)*100,"%"))
-print(paste("La probabilidad de ver un UFO en seattle o verlo a las 21:00 es del",(sum(probinter4$x)/avistTot)*100,"%"))
-print(paste("La probabilidad de ver un UFO en una ciudad que no sea seattle a una hora distinta a las 21:00 es del",(sum(probinter6$x)/avistTot)*100,"%"))
-print(paste("La probabilidad de ver un UFO en una ciudad que no sea seattle a las 21:00 es del",(sum(probinter8$x)/avistTot)*100,"%"))
-print(paste("La probabilidad de ver un UFO en una ciudad distinta de seattle a las 21:00 con una forma que sea lumínica o desconocida",(sum(probinter10$x)/avistTot)*100,"%"))
-print(paste("La probabilidad de ver un UFO en seattle a una hora distinta de las 21:00 con una forma que sea distinta de lumínica o desconocida pero con una duracion de mas de 10 segundos",(sum(probinter12$x)/avistTot)*100,"%"))
+prob1 <- datos_us[which(datos_us$city == 'seattle'&format(datos_us$datetime,"%H")!=21&(datos_us$shape != 'light'&datos_us$shape!='unknown')&datos_us$`duration (seconds)`>10),]
+prob2<-aggregate(prob1$city,by=list(city=prob1$city),FUN=length)
+print(paste("La probabilidad de ver un UFO en seattle a una hora distinta de las 21:00 con una forma que sea distinta de lumínica o desconocida pero con una duracion de mas de 10 segundos",(sum(prob2$x)/avistTot)*100,"%"))
 
 ```
 Respondemos algunas preguntas de probabilidad condicional
 ```{r}
-datos <- read.csv("scrubbed.csv")
-
-datos_usProb <- datos[which(datos$country == 'us'),]
-
-datos_usProb <- datos %>% select(-country)
-
-datos_usProb <- datos[sample(nrow(datos_us), 1000), ]
 maxdat<-count(datos)
 prob1 <- datos_us[which(format(datos_us$datetime,"%H")==15),]
 prob2<-count(prob1)
-prob3 <- datos_us[which(datos_us$city == 'richmond'),]
-prob4<-count(prob3)
-prob5 <- datos_us[which(datos_us$shape=='changing'),]
-prob6<-count(prob5)
-prob7 <- datos[which(datos$country != 'us'),]
-prob8<-count(prob7)
-
-
 print(paste("Dado que son las 15:00 que probabilidad hay de ver un UFO?",(prob2/avistTot)*100,"%"))
-print(paste("Si vivo en Richmond que probabilidad tengo de ver un UFO?",(prob4/avistTot)*100,"%"))
-print(paste("En caso de ver un ovni que probabilidad hay de que sea cambiante?",(prob6/avistTot)*100,"%"))
-print(paste("Si vivo fuera de Estados Unidos que probabilidad hay de avistar un ovni?",(prob8/maxdat)*100,"%"))
+
+prob1 <- datos_us[which(datos_us$city == 'richmond'),]
+prob2<-count(prob1)
+print(paste("Si vivo en Richmond que probabilidad tengo de ver un UFO?",(prob2/avistTot)*100,"%"))
+
+prob1 <- datos_us[which(datos_us$shape=='changing'),]
+prob2<-count(prob1)
+print(paste("En caso de ver un ovni que probabilidad hay de que sea cambiante?",(prob2/avistTot)*100,"%"))
+
+prob1 <- datos[which(datos$country != 'us'),]
+prob2<-count(prob1)
+print(paste("Si vivo fuera de Estados Unidos que probabilidad hay de avistar un ovni?",(prob2/maxdat)*100,"%"))
+
 ```
 
 
