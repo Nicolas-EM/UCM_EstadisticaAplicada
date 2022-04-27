@@ -438,6 +438,322 @@ print(paste("Si vivo fuera de Estados Unidos que probabilidad hay de avistar un 
 
 # Tema 5 - Variables Aleatorias y Modelos de Probabilidad (Sergio)
 
+Distribucion normal
+
+
+Funcion de densidad respecto a los días de los mes mas comunes de todos los años en el que se han visto ovnis en EEUU.
+
+
+```{r}
+
+
+dia <-as.numeric(format(datos_us$datetime,'%d'))
+
+hist(dia, freq = FALSE, main = "Histograma y densidad",
+     ylab = "Densidad")
+
+dx <- density(dia)
+
+lines(dx, lwd = 2, col = "red")
+
+```
+También tenemos la media, moda, varianza y desviación típica de estos datos.
+
+```{r}
+mean(dia)
+
+mode(dia)
+
+var(dia)
+
+sd(dia)
+```
+Funcion de distribucion acumulada
+
+```{r}
+
+f1 <- pnorm(dia,mean(dia),sd(dia))
+
+plot(dia,f1,main = "Funcion de distribucion acumulada")
+
+
+
+```
+calculamos la probabilidad de que se avisten ovnis durante los primeros 10 dias de cada mes
+
+P(X≤10)
+
+```{r}
+pnorm(10,mean(dia),sd(dia))
+
+```
+calculamos la probabilidad de que se avisten ovnis durante los ultimos 5 dias de cada mes
+
+P(X>25)
+
+```{r}
+
+1-pnorm(25,mean(dia),sd(dia))
+```
+calculamos la probabilidad de que se avisten ovnis entre los dias 10 y 20 de cada mes.
+
+P(10≤X≤20)
+
+```{r}
+pnorm(20,mean(dia),sd(dia)) - pnorm(10,mean(dia),sd(dia))
+```
+
+Podemos representar este último gráficamente:
+
+```{r}
+
+regionX=seq(10,20,0.01)
+xP <- c(10,regionX,20)
+yP <- c(0,dnorm(regionX,15,12),0)
+
+curve(dnorm(x,15,12),xlim=c(0,30),yaxs="i",ylim=c(0,0.035),ylab="f(x)",
+      main='Densidad P(10<X<20)') 
+polygon(xP,yP,col="orange1")
+box()
+```
+##Diagrama de POISSON
+
+Podemos averiguar cuantos ovnis fueron divisados en 2012.
+
+para ello vemos que aproximadamente se avistaron estos ovnis en 2012.
+```{r}
+year <-as.numeric(format(datos_us$datetime,'%y'))
+
+landa <- sum(year == 12)
+```
+
+```{r}
+
+plot(dpois(0:200, landa), type = "h", lwd = 2,
+     main = "Función de masa de probabilidad",
+     ylab = "P(X = x)", xlab = "Número de ovnis avistados en 2012")
+
+
+
+```
+##Distribución Exponencial
+La distribución exponencial es la distribución de probabilidad del tiempo o espacio entre dos eventos en un proceso de Poisson, donde los eventos ocurren de manera continua e independiente a una tasa constante.
+
+Ya sacamos la tasa de llegada de los ovnis en 2012 con la distribucion de Poisson , y con ello, podemos dibujar la gráfica de la función de densidad exponencial.
+
+```{r}
+
+
+
+# Rejilla del eje X
+x <- seq(0, 0.1, 0.01)
+
+dexp(x,landa)
+# lambda
+plot(x, dexp(x, landa), type = "l",
+     ylab = "f(x)", lwd = 2, col = "red")
+```
+De la mimsa forma tenemos la funcion de distribucion de exponencial acumulada
+
+```{r}
+
+# Rejilla de valores del eje X
+x <- seq(0,0.1, 0.01)
+
+pexp(x,landa)
+# lambda
+plot(x, pexp(x, landa), type = "l",
+     ylab = "F(x)", lwd = 2, col = "orange")
+
+```
+
+#Funcion de la distribucion acumulada de Poisson
+
+La probabilidad de que se divisen menos de 100 ovnis en 2012 P(X<=100)es:
+
+```{r}
+ppois(100,landa)
+
+```
+Probabilidad de que se divisen entre 80 y 95 ovnis en 2012 P(80< X< 95)
+
+A modo ilustrativo, podemos representarlo en una gráfica 
+
+
+
+```{r}
+ppois(95,landa) - ppois(80,landa)
+
+pois_sum <- function(lambda, lb, ub, col = 4, lwd = 1, ...) {
+    x <- 0:(lambda + lambda * 2)
+    
+    if (missing(lb)) {
+       lb <- min(x)
+    }
+    if (missing(ub)) {
+        ub <- max(x)
+    }
+      
+    plot(dpois(x, lambda = lambda), type = "h", lwd = lwd, ...)
+  
+    if(lb == min(x) & ub == max(x)) {
+        color <- col
+    } else {
+        color <- rep(1, length(x))
+        color[(lb + 1):ub ] <- col
+    }
+    
+    lines(dpois(x, lambda = lambda), type = "h",
+          col =  color, lwd = lwd, ...)
+}
+
+
+pois_sum(landa,80, 95, lwd = 2,
+           col = 2, ylab = "P(X = x)", xlab = "Ovnis avistados en 2012")
+```
+
+Gráfico de la función de distribución de Poisson
+
+```{r}
+plot(ppois(0:200, landa), type = "s", lwd = 2,
+     main = "Función de distribución",
+     xlab = "Número de eventos", ylab = "F(x)")
+
+```
+
+También podemos obtener los cuantiles correspondientes de la distribucion de Poisson
+
+```{r}
+plot(qpois(seq(0,1,0.001), landa),
+     main = "Función cuantil",
+     ylab = "Q(p)", xlab = "Cuantiles",
+     type = "s", col = 3, xaxt = "n")
+
+axis(1, labels = seq(0, 1, 0.1), at = 0:10 * 100)
+```
+##Distribucion Binomial
+
+Para los datos, vamos a calcular la probabilidad de se vean ovnis el dia 24 de cada mes.
+
+Con lo que si se ven ovnis los días 24, son aciertos, y al contrario son fallos.
+
+```{r}
+
+dia <-as.numeric(format(datos_us$datetime,'%d'))
+
+tam<- 1000
+x <- (dia == 24)
+
+y <- sum(x)
+  
+probEnsayo <- (y/tam)
+
+print(probEnsayo)
+
+```
+Funcion de probabilidad binomial
+
+```{r}
+plot(dbinom(1:100, tam, probEnsayo), type = "h", lwd = 2,
+     main = "Función de probabilidad binomial",
+     ylab = "P(X = x)", xlab = "Número de éxitos")
+```
+Probabilidad de encontrar a lo largo de 69 años (2014 - 1945) mas de 35 ovnis el día 24 de cada mes:
+
+P(X > 35)
+
+```{r}
+1 - pbinom(35, tam, probEnsayo)
+
+```
+Probabilidad de encontrar a lo largo de 69 años (2014 - 1945) menos de 25 ovnis el día 24 de cada mes:
+
+P(X <= 25)
+
+```{r}
+pbinom(25, tam, probEnsayo)
+```
+Ahora graficmente la probabilidadd de encontrar entre 25 y 35 ovnis.
+
+P(25 <= X <= 35)
+
+```{r}
+
+binom_sum <- function(size, prob, lb, ub, col = 4, lwd = 1, ...) {
+    x <- 0:size
+    
+    if (missing(lb)) {
+       lb <- min(x)
+    }
+    if (missing(ub)) {
+        ub <- max(x)
+    }
+      
+    plot(dbinom(x, size = size, prob = prob), type = "h", lwd = lwd, ...)
+  
+    if(lb == min(x) & ub == max(x)) {
+        color <- col
+    } else {
+        color <- rep(1, length(x))
+        color[(lb + 1):ub ] <- col
+    }
+    
+    lines(dbinom(x, size = size, prob = prob), type = "h",
+          col =  color, lwd = lwd, ...)
+}
+
+binom_sum(0 :100, probEnsayo, lb = 25, ub = 35, lwd = 2,
+          ylab = "P(X = x)", xlab = "Número de éxitos")
+```
+Funcion de distribucion binomial
+
+```{r}
+plot(pbinom(10:50, tam, probEnsayo), type = "s", lwd = 2,
+     main = "Función de distribución binomial",
+     xlab = "Número de éxitos", ylab = "F(x)")
+```
+
+##Teorema central del límite
+
+Hemos usado la distribucion binomial para el teorema central del límite, 
+
+El teorema central del límite (TCL) es una teoría estadística que establece que, dada una muestra aleatoria suficientemente grande de la población, la distribución de las medias muestrales seguirá una distribución normal.
+
+Realizamos el histograma de las 6 últimas muestras y de la media muestral,
+
+```{r}
+
+tamMuestra=1000
+numMuestras=25
+#hemo 
+
+#Se deja ese hueco vacío aunque salga warning
+mat=matrix(, nrow = numMuestras, ncol = tamMuestra)
+mediax=vector()
+
+# Genera numMuestras muestras aleatorias 
+# Para cada muestra, almacena la media en el vector anterior
+for (i in 1:numMuestras){
+  x=rbinom(tamMuestra,200,probEnsayo)
+  mat[i,]=x
+  mediax[i]=mean(x)
+}
+
+# Muestra la media de las 6 Ãºltimas muestras generadas
+print(c(mediax[numMuestras],mediax[numMuestras-1],mediax[numMuestras-2],
+        mediax[numMuestras-3],mediax[numMuestras-4],mediax[numMuestras-5]))
+
+# Muestra el histograma de las 6 Ãºltimas muestras y de la media muestral
+par(mfrow=c(3, 3))
+hist(mat[numMuestras,],probability=TRUE)
+hist(mat[numMuestras-1,],probability=TRUE)
+hist(mat[numMuestras-2,],probability=TRUE)
+hist(mat[numMuestras-3,],probability=TRUE)
+hist(mat[numMuestras-4,],probability=TRUE)
+hist(mat[numMuestras-5,],probability=TRUE)
+hist(mediax,probability=TRUE)
+```
+
 # Tema 6 - Muestreo, Estimación Puntual y por Intervalos de Confianza (Iñigo)
 
 Vamos a construir un intervalo de confianza del 95% para la duracion media de los avistamientos en EEUU.
