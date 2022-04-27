@@ -468,7 +468,7 @@ var(dia)
 
 sd(dia)
 ```
-Funcion de distribucion acumulada
+Funcion de distribucion acumulada respecto a los días de los mes mas comunes de todos los años en el que se han visto ovnis en EEUU.
 
 ```{r}
 
@@ -484,6 +484,7 @@ calculamos la probabilidad de que se avisten ovnis durante los primeros 10 dias 
 P(X≤10)
 
 ```{r}
+
 pnorm(10,mean(dia),sd(dia))
 
 ```
@@ -520,12 +521,12 @@ box()
 
 Podemos averiguar cuantos ovnis fueron divisados en 2012.
 
-para ello vemos que aproximadamente se avistaron estos ovnis en 2012.
 ```{r}
 year <-as.numeric(format(datos_us$datetime,'%y'))
 
 landa <- sum(year == 12)
 ```
+
 
 ```{r}
 
@@ -537,9 +538,8 @@ plot(dpois(0:200, landa), type = "h", lwd = 2,
 
 ```
 ##Distribución Exponencial
-La distribución exponencial es la distribución de probabilidad del tiempo o espacio entre dos eventos en un proceso de Poisson, donde los eventos ocurren de manera continua e independiente a una tasa constante.
 
-Ya sacamos la tasa de llegada de los ovnis en 2012 con la distribucion de Poisson , y con ello, podemos dibujar la gráfica de la función de densidad exponencial.
+Una vez calculada la tasa de llegada de los ovnis en 2012 con la distribucion de Poisson, podemos dibujar la gráfica de la función de densidad exponencial.
 
 ```{r}
 
@@ -553,7 +553,7 @@ dexp(x,landa)
 plot(x, dexp(x, landa), type = "l",
      ylab = "f(x)", lwd = 2, col = "red")
 ```
-De la mimsa forma tenemos la funcion de distribucion de exponencial acumulada
+De la misma forma tenemos la funcion de distribución de exponencial acumulada
 
 ```{r}
 
@@ -567,12 +567,11 @@ plot(x, pexp(x, landa), type = "l",
 
 ```
 
-#Funcion de la distribucion acumulada de Poisson
-
-La probabilidad de que se divisen menos de 100 ovnis en 2012 P(X<=100)es:
+La probabilidad de que se divisen menos de 100 ovnis en 2012 P(X<=100) es:
 
 ```{r}
 ppois(100,landa)
+
 
 ```
 Probabilidad de que se divisen entre 80 y 95 ovnis en 2012 P(80< X< 95)
@@ -582,6 +581,7 @@ A modo ilustrativo, podemos representarlo en una gráfica
 
 
 ```{r}
+
 ppois(95,landa) - ppois(80,landa)
 
 pois_sum <- function(lambda, lb, ub, col = 4, lwd = 1, ...) {
@@ -610,18 +610,19 @@ pois_sum <- function(lambda, lb, ub, col = 4, lwd = 1, ...) {
 
 pois_sum(landa,80, 95, lwd = 2,
            col = 2, ylab = "P(X = x)", xlab = "Ovnis avistados en 2012")
+
 ```
 
-Gráfico de la función de distribución de Poisson
+Gráfico de la función de distribución exponencial
 
 ```{r}
-plot(ppois(0:200, landa), type = "s", lwd = 2,
-     main = "Función de distribución",
+plot(ppois(40:100, landa), type = "s", lwd = 2,
+     main = "Función de distribución exponencial",
      xlab = "Número de eventos", ylab = "F(x)")
 
 ```
 
-También podemos obtener los cuantiles correspondientes de la distribucion de Poisson
+También podemos obtener los cuantiles correspondientes de la distribucion exponencial
 
 ```{r}
 plot(qpois(seq(0,1,0.001), landa),
@@ -716,8 +717,6 @@ plot(pbinom(10:50, tam, probEnsayo), type = "s", lwd = 2,
 ##Teorema central del límite
 
 Hemos usado la distribucion binomial para el teorema central del límite, 
-
-El teorema central del límite (TCL) es una teoría estadística que establece que, dada una muestra aleatoria suficientemente grande de la población, la distribución de las medias muestrales seguirá una distribución normal.
 
 Realizamos el histograma de las 6 últimas muestras y de la media muestral,
 
