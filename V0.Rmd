@@ -7,7 +7,12 @@ output: html_notebook
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
 
-# Intro
+# Objetivos
+- TODO
+- TODO
+- TODO
+
+# Datos
 
 En este projecto usaremos el fichero de datos "scrubbed.csv" obtenido en <https://www.kaggle.com/datasets/NUFORC/ufo-sightings>. Elimininaremos datos de tipo NA y cambiaremos paises vacios (i.e. pais == "") por "*Otros*". Tambien arreglamos el formato de los datos con la libreria *lubridate*. Usamos la libreria *dplyr* para eliminar columnas no necesarias.
 
@@ -31,18 +36,26 @@ library(dplyr)
 datos <- datos %>% select(-one_of('duration..seconds.', 'duration..hours.min.', 'date.posted'))
 ```
 
-Analisando los datos por pais, podemos ver que la mayoria de los OVNIs reportados son en EEUU. Usaremos la libreria *ggplot2* para generar un diagrama representando el numero de OVNIs reportados por pais.
+Analisando los datos por pais, lógicamente podemos ver que la mayoria de los OVNIs reportados a la National UFO Reporting Center de EEUU ocurririon dentro de EEUU. Usaremos la libreria *ggplot2* para generar un diagrama representando el numero de OVNIs reportados por pais y la libreria *leaflet* para generar un mapa con las longitudes y latitudes.
 
 ```{r}
-by_country <- aggregate(datos$country, by=list(Country = datos$country), FUN=length)
-
+library(leaflet)
 library(ggplot2)
+
+by_country <- aggregate(datos$country, by=list(Country = datos$country), FUN=length)
 
 ggplot(by_country, aes(x=by_country$Country, y=by_country$x, fill=by_country$Country)) +
   geom_bar(stat="identity", width=1) +
   xlab('Paises') +
   ylab('Avistamientos') +
   guides(fill = guide_legend(title = "Country" ))
+
+leaflet(datos) %>%
+  addTiles() %>%
+  addProviderTiles("CartoDB.Positron") %>%
+  addMarkers(~longitude, ~latitude,
+             popup = ~state, label = ~city,
+             clusterOptions = markerClusterOptions())
 ```
 
 Por eso, hemos decidido hacer nuestros analisis sobre datos solamente de EEUU. Tomamos una prueba de tamaño 1000.
@@ -56,7 +69,7 @@ datos_us <- datos_us[sample(nrow(datos_us), 1000), ]
 ```
 
 
-# Tema 3 - Estadística Descriptiva y Regresión (Axel)
+# Tema 3 - Estadística Descriptiva y Regresión
 De la prueba de 1000 datos, se ha hecho el análisis solamente de las variables cuantitativas, las cuales son: ("datetime, latitude, longitude, duration(seconds)").
 
 Con el comando names(object...) se puede ver todas las columnas del fichero de datos y las referenciadas anteriormente.
@@ -239,38 +252,40 @@ plot(breaks, longitude.cumfreq,
 lines(breaks, longitude.cumfreq)
 ```
 
-# Tema 4 - Probabilidad (Fonsi)
+# Tema 4 - Probabilidad
 
 Si quieres tratar de avistar un UFO la siguiente información que te proporcionamos te será de suma utilidad, como el pais, estado y ciudad donde debes ir para realizar un avistamiento, además de la forma que debes buscar y las horas a las que debes buscarlo, además de otros datos curiosos como la duración y los años que fueron más probables de avistar.
 
 ```{r}
+print("Probabilidad de avistar un ovni por país:")
+
 dat <- read.csv("scrubbed.csv")
 dat_country<-aggregate(dat$country, by=list(Country = dat$country), FUN=length)
 dat$country <- ifelse(dat$country=="","otros",dat$country)
 numAvistamientos<-sum(dat_country$x)
-proobau1<-dat_country[which(dat_country$Country == 'au'),]
-probbauval1<-(proobau1$x/numAvistamientos)*100
-print(paste("La probabilidad de avistar un ovni en Australia es del: ",probbauval1,"%"))
+proobau<-dat_country[which(dat_country$Country == 'au'),]
+probbauval<-(proobau$x/numAvistamientos)*100
+print(paste("Australia: ",probbauval,"%"))
 
-proobau2<-dat_country[which(dat_country$Country == 'ca'),]
-probbauval1<-(proobau1$x/numAvistamientos)*100
-print(paste("La probabilidad de avistar un ovni en Canadá es del: ",probbauval1,"%"))
+proobau<-dat_country[which(dat_country$Country == 'ca'),]
+probbauval<-(proobau$x/numAvistamientos)*100
+print(paste("Canadá: ",probbauval,"%"))
 
-proobau3<-dat_country[which(dat_country$Country == 'de'),]
-probbauval1<-(proobau1$x/numAvistamientos)*100
-print(paste("La probabilidad de avistar un ovni en Alemania es del: ",probbauval1,"%"))
+proobau<-dat_country[which(dat_country$Country == 'de'),]
+probbauval<-(proobau$x/numAvistamientos)*100
+print(paste("Alemania: ",probbauval,"%"))
 
-proobau4<-dat_country[which(dat_country$Country == 'gb'),]
-probbauval1<-(proobau1$x/numAvistamientos)*100
-print(paste("La probabilidad de avistar un ovni en Gran Bretaña es del: ",probbauval1,"%"))
+proobau<-dat_country[which(dat_country$Country == 'gb'),]
+probbauval<-(proobau$x/numAvistamientos)*100
+print(paste("Gran Bretaña: ",probbauval,"%"))
 
-proobau5<-dat_country[which(dat_country$Country == 'us'),]
-probbauval1<-(proobau1$x/numAvistamientos)*100
-print(paste("La probabilidad de avistar un ovni en Estados Unidos es del: ",probbauval1,"%"))
+proobau<-dat_country[which(dat_country$Country == 'us'),]
+probbauval<-(proobau$x/numAvistamientos)*100
+print(paste("Estados Unidos: ",probbauval,"%"))
 
-proobau6<-dat_country[which(dat_country$Country == ''),]
-probbauval1<-(proobau1$x/numAvistamientos)*100
-print(paste("La probabilidad de avistar un ovni en otros países es del: ",probbauval1,"%"))
+proobau<-dat_country[which(dat_country$Country == ''),]
+probbauval<-(proobau$x/numAvistamientos)*100
+print(paste("otros países: ",probbauval,"%"))
 maxcountry<-sum(by_country$x)
 
 ggplot(by_country, aes(x=Country, y=(x/maxcountry)*100, fill=Country)) +
@@ -278,10 +293,6 @@ ggplot(by_country, aes(x=Country, y=(x/maxcountry)*100, fill=Country)) +
   xlab('Paises') +
   ylab('Probabilidad') +
   guides(fill = guide_legend(title = "Country" ))
-
-
-
-
 ```
 
 Debido a que es  en Estados Unidos donde hay mayor probabilidad de avistar un UFO vamos a calcular los estados donde es mas probable lograrlo
@@ -436,26 +447,18 @@ print(paste("Si vivo fuera de Estados Unidos que probabilidad hay de avistar un 
 
 
 
-# Tema 5 - Variables Aleatorias y Modelos de Probabilidad (Sergio)
+# Tema 5 - Variables Aleatorias y Modelos de Probabilidad
 
-Distribucion normal
+## Distribucion normal
 
-
-Funcion de densidad respecto a los días de los mes mas comunes de todos los años en el que se han visto ovnis en EEUU.
+Funcion de densidad respecto a los días de los mes mas comunes de todos los años en el que se han visto ovnis en EEUU. Como los datos, excepto los extremos, están aproximadamente sobre la linea, podemos decir que exluyendo los extremos, los datos siguen una distribucion normal.
 
 
 ```{r}
-
-
 dia <-as.numeric(format(datos_us$datetime,'%d'))
 
-hist(dia, freq = FALSE, main = "Histograma y densidad",
-     ylab = "Densidad")
-
-dx <- density(dia)
-
-lines(dx, lwd = 2, col = "red")
-
+qqnorm(dia, pch = 1, frame = FALSE)
+qqline(dia, col = "steelblue", lwd = 2)
 ```
 También tenemos la media, moda, varianza y desviación típica de estos datos.
 
@@ -471,15 +474,11 @@ sd(dia)
 Funcion de distribucion acumulada respecto a los días de los mes mas comunes de todos los años en el que se han visto ovnis en EEUU.
 
 ```{r}
-
 f1 <- pnorm(dia,mean(dia),sd(dia))
 
 plot(dia,f1,main = "Funcion de distribucion acumulada")
-
-
-
 ```
-calculamos la probabilidad de que se avisten ovnis durante los primeros 10 dias de cada mes
+Calculamos la probabilidad de que se avisten ovnis durante los primeros 10 dias de cada mes
 
 P(X≤10)
 
@@ -488,7 +487,7 @@ P(X≤10)
 pnorm(10,mean(dia),sd(dia))
 
 ```
-calculamos la probabilidad de que se avisten ovnis durante los ultimos 5 dias de cada mes
+Calculamos la probabilidad de que se avisten ovnis durante los ultimos 5 dias de cada mes
 
 P(X>25)
 
@@ -496,7 +495,7 @@ P(X>25)
 
 1-pnorm(25,mean(dia),sd(dia))
 ```
-calculamos la probabilidad de que se avisten ovnis entre los dias 10 y 20 de cada mes.
+Calculamos la probabilidad de que se avisten ovnis entre los dias 10 y 20 de cada mes.
 
 P(10≤X≤20)
 
@@ -517,7 +516,7 @@ curve(dnorm(x,15,12),xlim=c(0,30),yaxs="i",ylim=c(0,0.035),ylab="f(x)",
 polygon(xP,yP,col="orange1")
 box()
 ```
-##Diagrama de POISSON
+## Diagrama de POISSON
 
 Podemos averiguar cuantos ovnis fueron divisados en 2012.
 
@@ -537,18 +536,16 @@ plot(dpois(0:200, landa), type = "h", lwd = 2,
 
 
 ```
-##Distribución Exponencial
+## Distribución Exponencial
 
 Una vez calculada la tasa de llegada de los ovnis en 2012 con la distribucion de Poisson, podemos dibujar la gráfica de la función de densidad exponencial.
 
 ```{r}
-
-
-
 # Rejilla del eje X
 x <- seq(0, 0.1, 0.01)
 
 dexp(x,landa)
+
 # lambda
 plot(x, dexp(x, landa), type = "l",
      ylab = "f(x)", lwd = 2, col = "red")
@@ -556,32 +553,26 @@ plot(x, dexp(x, landa), type = "l",
 De la misma forma tenemos la funcion de distribución de exponencial acumulada
 
 ```{r}
-
 # Rejilla de valores del eje X
 x <- seq(0,0.1, 0.01)
 
 pexp(x,landa)
+
 # lambda
 plot(x, pexp(x, landa), type = "l",
      ylab = "F(x)", lwd = 2, col = "orange")
-
 ```
 
 La probabilidad de que se divisen menos de 100 ovnis en 2012 P(X<=100) es:
 
 ```{r}
 ppois(100,landa)
-
-
 ```
 Probabilidad de que se divisen entre 80 y 95 ovnis en 2012 P(80< X< 95)
 
 A modo ilustrativo, podemos representarlo en una gráfica 
 
-
-
 ```{r}
-
 ppois(95,landa) - ppois(80,landa)
 
 pois_sum <- function(lambda, lb, ub, col = 4, lwd = 1, ...) {
@@ -607,10 +598,8 @@ pois_sum <- function(lambda, lb, ub, col = 4, lwd = 1, ...) {
           col =  color, lwd = lwd, ...)
 }
 
-
 pois_sum(landa,80, 95, lwd = 2,
            col = 2, ylab = "P(X = x)", xlab = "Ovnis avistados en 2012")
-
 ```
 
 Gráfico de la función de distribución exponencial
@@ -619,7 +608,6 @@ Gráfico de la función de distribución exponencial
 plot(ppois(40:100, landa), type = "s", lwd = 2,
      main = "Función de distribución exponencial",
      xlab = "Número de eventos", ylab = "F(x)")
-
 ```
 
 También podemos obtener los cuantiles correspondientes de la distribucion exponencial
@@ -632,14 +620,13 @@ plot(qpois(seq(0,1,0.001), landa),
 
 axis(1, labels = seq(0, 1, 0.1), at = 0:10 * 100)
 ```
-##Distribucion Binomial
+## Distribucion Binomial
 
 Para los datos, vamos a calcular la probabilidad de se vean ovnis el dia 24 de cada mes.
 
 Con lo que si se ven ovnis los días 24, son aciertos, y al contrario son fallos.
 
 ```{r}
-
 dia <-as.numeric(format(datos_us$datetime,'%d'))
 
 tam<- 1000
@@ -650,7 +637,6 @@ y <- sum(x)
 probEnsayo <- (y/tam)
 
 print(probEnsayo)
-
 ```
 Funcion de probabilidad binomial
 
@@ -714,7 +700,7 @@ plot(pbinom(10:50, tam, probEnsayo), type = "s", lwd = 2,
      xlab = "Número de éxitos", ylab = "F(x)")
 ```
 
-##Teorema central del límite
+## Teorema central del límite
 
 Hemos usado la distribucion binomial para el teorema central del límite, 
 
@@ -753,7 +739,7 @@ hist(mat[numMuestras-5,],probability=TRUE)
 hist(mediax,probability=TRUE)
 ```
 
-# Tema 6 - Muestreo, Estimación Puntual y por Intervalos de Confianza (Iñigo)
+# Tema 6 - Muestreo, Estimación Puntual y por Intervalos de Confianza
 
 Vamos a construir un intervalo de confianza del 95% para la duracion media de los avistamientos en EEUU.
 ```{r}
@@ -778,5 +764,72 @@ hist(retval$'duration (seconds)', freq=TRUE,
      #Podemos observar que la mayoría de avistamientos duran muy poco tiempo.
 ```
 
+# Tema 7 - Contrastes de Hipótesis
 
-# Tema 7 - Contrastes de Hipótesis (Nico)
+Dado que la mayoría de los datos son de EEUU, queremos saber si los OVNIs realmente prefieren estar ahí. Para esto, haremos un contraste de la duración del avistamiento entre EEUU y todos los demás. Podemos asumir que como los datos son del National UFO Reporting Center (NUFORC) basado EEUU, datos de otros países no son datos poblacionales. 
+
+Basaremos el estudio en las siguentes hipótesis:
+
+| Hipótesis | Contraste |
+|-----------|---------|
+| H0 (Nula) | µ(EEUU) = µ(Otros) |
+| H1 (Alternativa) | µ(EEUU) != µ(Otros) |
+
+Donde µ(EEUU) y µ(Otros) son la duración media de un avistamiento en EEUU y en otros países respectivamente. Tomaremos el nivel de significancia α = 0.1
+
+```{r}
+alpha <- 0.1
+
+datos_us <- datos[which(datos$country == 'us'),]
+datos_us <- datos_us %>% select(-country)
+
+datos_otros <- datos[which(datos$country != 'us'),]
+datos_otros <- datos_otros %>% select(-country)
+
+# Eliminamos valores extremos
+duracion_us <- datos_us$`duration (seconds)`[!(datos_us$`duration (seconds)` %in% boxplot.stats(datos_us$`duration (seconds)`)$out)]
+duracion_otros <- datos_otros$`duration (seconds)`[!(datos_otros$`duration (seconds)` %in% boxplot.stats(datos_otros$`duration (seconds)`)$out)]
+
+```
+
+Como tenemos un número de datos muy grande, usamos el teorema central del límite (verificando que es distribución normal) para calcular µ(EEUU). Dado que las duraciones son muy variables, asumimos que las desviaciones desconocidas son distintas.
+
+```{r}
+muestra_duracion_us <- replicate(100, sample(duracion_us, size = 1000, replace = TRUE) %>% mean())
+
+car::qqPlot(muestra_duracion_us)
+
+var_us <- var(muestra_duracion_us)
+x_us <- mean(muestra_duracion_us)
+```
+
+Hacemos lo mismo para las duraciones de otros países
+
+```{r}
+muestra_duracion_otros <- replicate(100, sample(duracion_otros, size = 1000, replace = TRUE) %>% mean())
+
+car::qqPlot(muestra_duracion_otros)
+
+var_otros <- var(muestra_duracion_otros)
+x_otros <- mean(muestra_duracion_otros)
+```
+
+Calculamos la region de rechazo 
+
+```{r}
+f <- ((var_us / 100 + var_otros / 100) ^ 2) / ((var_us/100)^2/99 + (var_otros/100)^2/99)
+f <- round(f)
+cuantil <- qt(c(.025, .975), df=f)
+
+print(paste("La region de rechazo es T < ", cuantil[1], " o T > ", cuantil[2]))
+
+estadistico <- abs(x_us - x_otros) / sqrt(var_us / 100 + var_otros / 100)
+print(estadistico)
+```
+Como nuestro estadistico está en la region de rechazo, rechazamos la hipótesis nula. Eso significa que efectivamente, la duración de un avistamiento es mayor en EEUU.
+
+Podemos verificar esto usando el test t de student ya que nuestra n > 30
+```{r}
+t.test(x=muestra_duracion_us, y=muestra_duracion_otros, alternative = "two.sided", conf.level  = 0.9)
+```
+
