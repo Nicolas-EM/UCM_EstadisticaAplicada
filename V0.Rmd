@@ -83,7 +83,7 @@ names(datos_us)
 
 ## Medidas de Posición - Tendencia Central y No Central
 
-Con `summary(object...)` podemos ver la media, mediana y percentiles de varios datos, para calcular la moda usamos la funcion *mode*.
+Con `summary(object...)` podemos ver la media, mediana y percentiles de varios datos, para calcular la moda usamos la función *mode*.
 
 ```{r}
 mode <- function(x) {
@@ -197,13 +197,17 @@ hist(x)
 ### longitude
 Al calcular la asimetría y curtosis de la latitud determinamos que:
 *Obtenemos una asimetría negativa, por tanto la mayoría de datos se encuentran a la derecha de la media.
-*Obtenemos una curtosis mayor que cero, por tanto, hay una mayor concentración
-de datos alrededor de la media
+*Obtenemos una curtosis mayor que cero, por tanto, hay una mayor concentración de datos alrededor de la media.
+Obtenemos el histograma con los datos de la longitud.
 ```{r}
 library(moments)
 x <- (datos_us$longitude)
-print(kurtosis(x))
-print(skewness(x))
+
+
+print(paste("Asimetría:", kurtosis(x)))
+
+print(paste("Curtois:", skewness(x)))
+
 print(mean(x))
 hist(x)
 ```
@@ -215,8 +219,9 @@ de datos alrededor de la media
 ```{r}
 library(moments)
 x <- (datos_us$datetime)
-print(kurtosis(x))
-print(skewness(x))
+print(paste("Asimetría:", kurtosis(x)))
+
+print(paste("Curtois:", skewness(x)))
 hist(x, 50)
 ```
 ### duration (seconds)
@@ -226,9 +231,11 @@ Al calcular la asimetría y curtosis de la latitud determinamos que:
 de datos alrededor de la media
 ```{r}
 library(moments)
-x <- (datos_us$'duration (seconds)')
-print(kurtosis(x))
-print(skewness(x))
+x <- (datos_us$'duration (seconds)'
+      )
+print(paste("Asimetría:", kurtosis(x)))
+
+print(paste("Curtois:", skewness(x)))
 print(mean(x))
 ```
 ## Gráficos 
@@ -257,7 +264,7 @@ lines(breaks, longitude.cumfreq)
 
 # Tema 4 - Probabilidad
 
-Si quieres tratar de avistar un UFO la siguiente información que te proporcionamos te será de suma utilidad, como el pais, estado y ciudad donde debes ir para realizar un avistamiento, además de la forma que debes buscar y las horas a las que debes buscarlo, además de otros datos curiosos como la duración y los años que fueron más probables de avistar.
+Si quieres tratar de avistar un UFO, la siguiente información que te proporcionamos te será de suma utilidad, como el país, estado y ciudad donde debes ir para realizar un avistamiento, además de la forma en la que debes buscar y en las horas a las que debes buscarlo,también tenemos otros datos curiosos como la duración y los años que fueron más probables de avistar.
 
 ```{r}
 print("Probabilidad de avistar un ovni por país:")
@@ -298,7 +305,7 @@ ggplot(by_country, aes(x=Country, y=(x/maxcountry)*100, fill=Country)) +
   guides(fill = guide_legend(title = "Country" ))
 ```
 
-Debido a que es  en Estados Unidos donde hay mayor probabilidad de avistar un UFO vamos a calcular los estados donde es mas probable lograrlo
+Debido a que Estados Unidos es donde hay mayor probabilidad de avistar un UFO, vamos a calcular los estados donde es mas probable lograrlo
 
 
 ```{r}
@@ -321,7 +328,7 @@ ggplot(mostseekstate, aes(x=mostseekstate$State, y=(mostseekstate$x/avistTot)*10
   guides(fill = guide_legend(title = "Estados" ))
 
 ```
-Ya que hemos calculado los estados haremos lo mismo con las ciudades
+Ya que hemos calculado los estados, haremos lo mismo con las ciudades
 
 ```{r}
 by_city <- aggregate(datos_us$city, by=list(City = datos_us$city), FUN=length)
@@ -466,44 +473,47 @@ qqline(dia, col = "steelblue", lwd = 2)
 También tenemos la media, moda, varianza y desviación típica de estos datos.
 
 ```{r}
-mean(dia)
 
-mode(dia)
+print(paste('Media:',mean(dia)))
+print(paste('Moda:',mode(dia)))
+print(paste('Varianza:',var(dia)))
+print(paste('Desviación típica:',sd(dia)))
 
-var(dia)
-
-sd(dia)
 ```
-Funcion de distribucion acumulada respecto a los días de los mes mas comunes de todos los años en el que se han visto ovnis en EEUU.
-
+Función de ditribución acumulada
 ```{r}
 f1 <- pnorm(dia,mean(dia),sd(dia))
 
 plot(dia,f1,main = "Funcion de distribucion acumulada")
 ```
-Calculamos la probabilidad de que se avisten ovnis durante los primeros 10 dias de cada mes
+
+Calculamos la probabilidad de que se avisten ovnis durante los primeros 10 dias de cada mes de todos los años.
 
 P(X≤10)
 
 ```{r}
 
-pnorm(10,mean(dia),sd(dia))
+print(paste('La probabilidad es:',100 * pnorm(10,mean(dia),sd(dia)),"%"))
 
 ```
-Calculamos la probabilidad de que se avisten ovnis durante los ultimos 5 dias de cada mes
+La probabilidad de que se avisten ovnis durante los ultimos 5 dias de cada mes
 
 P(X>25)
 
 ```{r}
 
-1-pnorm(25,mean(dia),sd(dia))
+print(paste('La probabilidad es:',100 * (1-pnorm(25,mean(dia),sd(dia))),"%"))
+
+
 ```
-Calculamos la probabilidad de que se avisten ovnis entre los dias 10 y 20 de cada mes.
+La probabilidad de que se avisten ovnis entre los dias 10 y 20 de cada mes.
 
 P(10≤X≤20)
 
 ```{r}
-pnorm(20,mean(dia),sd(dia)) - pnorm(10,mean(dia),sd(dia))
+
+print(paste('La probabilidad es:',100 * (pnorm(20,mean(dia),sd(dia)) - pnorm(10,mean(dia),sd(dia))),"%"))
+
 ```
 
 Podemos representar este último gráficamente:
@@ -522,7 +532,7 @@ box()
 
 ## Diagrama de Poisson
 
-Podemos averiguar cuantos ovnis fueron divisados en 2012.
+Podemos averiguar cuantos ovnis fueron divisados en 2012. Para ello, decimos nuestro landa es: "número de ovnis avistados en 2012".
 
 ```{r}
 year <-as.numeric(format(datos_us$datetime,'%y'))
@@ -543,13 +553,11 @@ plot(dpois(0:200, landa), type = "h", lwd = 2,
 
 ## Distribución Exponencial
 
-Una vez calculada la tasa de llegada de los ovnis en 2012 con la distribucion de Poisson, podemos dibujar la gráfica de la función de densidad exponencial.
+Una vez calculada la tasa de llegada de los ovnis en 2012 la distribucion de Poisson, podemos dibujar la gráfica de la función de densidad exponencial.
 
 ```{r}
 # Rejilla del eje X
 x <- seq(0, 0.1, 0.01)
-
-dexp(x,landa)
 
 # lambda
 plot(x, dexp(x, landa), type = "l",
@@ -561,8 +569,6 @@ De la misma forma tenemos la funcion de distribución de exponencial acumulada
 # Rejilla de valores del eje X
 x <- seq(0,0.1, 0.01)
 
-pexp(x,landa)
-
 # lambda
 plot(x, pexp(x, landa), type = "l",
      ylab = "F(x)", lwd = 2, col = "orange")
@@ -571,14 +577,18 @@ plot(x, pexp(x, landa), type = "l",
 La probabilidad de que se divisen menos de 100 ovnis en 2012 P(X<=100) es:
 
 ```{r}
-ppois(100,landa)
+
+print(paste('La probabilidad es:',100 * (ppois(100,landa)),"%"))
+
 ```
-Probabilidad de que se divisen entre 80 y 95 ovnis en 2012 P(80< X< 95)
+Probabilidad de que se divisen entre 90 y 110 ovnis en 2012 P(90<= X<= 110)
 
 A modo ilustrativo, podemos representarlo en una gráfica 
 
 ```{r}
-ppois(95,landa) - ppois(80,landa)
+
+print(paste('La probabilidad es:',100 * (ppois(110,landa) - ppois(90,landa)),"%"))
+
 
 pois_sum <- function(lambda, lb, ub, col = 4, lwd = 1, ...) {
     x <- 0:(lambda + lambda * 2)
@@ -603,7 +613,7 @@ pois_sum <- function(lambda, lb, ub, col = 4, lwd = 1, ...) {
           col =  color, lwd = lwd, ...)
 }
 
-pois_sum(landa,80, 95, lwd = 2,
+pois_sum(landa,90, 110, lwd = 2,
            col = 2, ylab = "P(X = x)", xlab = "Ovnis avistados en 2012")
 ```
 
@@ -621,16 +631,18 @@ También podemos obtener los cuantiles correspondientes de la distribucion expon
 plot(qpois(seq(0,1,0.001), landa),
      main = "Función cuantil",
      ylab = "Q(p)", xlab = "Cuantiles",
-     type = "s", col = 3, xaxt = "n")
+     type = "s", col = 6, xaxt = "n")
 
 axis(1, labels = seq(0, 1, 0.1), at = 0:10 * 100)
 ```
 
 ## Distribucion Binomial
 
-Para los datos, vamos a calcular la probabilidad de se vean ovnis el dia 24 de cada mes.
+Para estos datos, vamos a calcular la probabilidad de se vean ovnis el dia 24 de cada mes.
 
-Con lo que si se ven ovnis los días 24, son aciertos, y al contrario son fallos.
+Con lo que si se ven ovnis el díaa 24, son aciertos, y al contrario son fallos.
+
+Para ello tenemos que tener un tamaño de la muestra, supongamos 1000, y decir cuantas veces se han visto ovnis el día 24 de todos los meses.
 
 ```{r}
 dia <-as.numeric(format(datos_us$datetime,'%d'))
@@ -639,12 +651,14 @@ tam<- 1000
 x <- (dia == 24)
 
 y <- sum(x)
-  
+
+print(paste('El numero de ovnis vistos los días 24 son:',y))
+
 probEnsayo <- (y/tam)
 
-print(probEnsayo)
+print(paste('Con lo que la proporcion de ovnis vistos en tal día es:',probEnsayo))
 ```
-Funcion de probabilidad binomial
+Funcion de probabilidad binomial, aquí podemos observar sobre qué rango oscila el número de UFOs vistos.
 
 ```{r}
 plot(dbinom(1:100, tam, probEnsayo), type = "h", lwd = 2,
@@ -656,7 +670,7 @@ Probabilidad de encontrar a lo largo de 69 años (2014 - 1945) mas de 35 ovnis e
 P(X > 35)
 
 ```{r}
-1 - pbinom(35, tam, probEnsayo)
+print(paste('La probabilidad es:',100 * (1 - pbinom(35, tam, probEnsayo)),"%"))
 
 ```
 Probabilidad de encontrar a lo largo de 69 años (2014 - 1945) menos de 25 ovnis el día 24 de cada mes:
@@ -664,9 +678,11 @@ Probabilidad de encontrar a lo largo de 69 años (2014 - 1945) menos de 25 ovnis
 P(X <= 25)
 
 ```{r}
-pbinom(25, tam, probEnsayo)
+
+print(paste('La probabilidad es:',100 * (pbinom(25, tam, probEnsayo)),"%"))
+
 ```
-Ahora graficmente la probabilidadd de encontrar entre 25 y 35 ovnis.
+Ahora gráficmente la probabilidadd de encontrar entre 25 y 35 ovnis el día 24 de cada mes.
 
 P(25 <= X <= 35)
 
@@ -698,7 +714,7 @@ binom_sum <- function(size, prob, lb, ub, col = 4, lwd = 1, ...) {
 binom_sum(0 :100, probEnsayo, lb = 25, ub = 35, lwd = 2,
           ylab = "P(X = x)", xlab = "Número de éxitos")
 ```
-Funcion de distribucion binomial
+Funcion de distribucion binomial, con lo que podemos ver el número de veces que puede ocurrir un evento (que veamos un ovni el día 24), según la probabilidad de ocurrencia que tenga ésta.
 
 ```{r}
 plot(pbinom(10:50, tam, probEnsayo), type = "s", lwd = 2,
@@ -708,17 +724,18 @@ plot(pbinom(10:50, tam, probEnsayo), type = "s", lwd = 2,
 
 ## Teorema central del límite
 
-Hemos usado la distribucion binomial para el teorema central del límite, 
+Hemos usado la distribucion binomial para el teorema central del límite,
 
 Realizamos el histograma de las 6 últimas muestras y de la media muestral,
+
+Para ello tenemos un tamaño de muestra de 1000 y un número de muestras de 25
 
 ```{r}
 
 tamMuestra=1000
 numMuestras=25
-#hemo 
 
-#Se deja ese hueco vacío aunque salga warning
+
 mat=matrix(, nrow = numMuestras, ncol = tamMuestra)
 mediax=vector()
 
@@ -730,11 +747,12 @@ for (i in 1:numMuestras){
   mediax[i]=mean(x)
 }
 
-# Muestra la media de las 6 Ãºltimas muestras generadas
+print("Medias de las últimas 6 muestras generadas:")
+# Muestra la media de las 6 ultimas muestras generadas
 print(c(mediax[numMuestras],mediax[numMuestras-1],mediax[numMuestras-2],
         mediax[numMuestras-3],mediax[numMuestras-4],mediax[numMuestras-5]))
 
-# Muestra el histograma de las 6 Ãºltimas muestras y de la media muestral
+# Muestra el histograma de las 6 ultimas muestras y de la media muestral
 par(mfrow=c(3, 3))
 hist(mat[numMuestras,],probability=TRUE)
 hist(mat[numMuestras-1,],probability=TRUE)
@@ -747,14 +765,15 @@ hist(mediax,probability=TRUE)
 
 # Tema 6 - Muestreo, Estimación Puntual y por Intervalos de Confianza
 
-Vamos a construir un intervalo de confianza del 95% para la duracion media de los avistamientos en EEUU.
+Vamos a construir un intervalo de confianza del 95% para la duración media de los avistamientos en EEUU.
 ```{r}
 #filtramos por duracion menor o igual a 7200, para descartar valores muy altos que son inútiles en nuestro análisis
 retval <- subset(datos_us, datos_us$`duration (seconds)` < 7201, select = c(state, `duration (seconds)`))
 
 intervalo <- t.test(retval$'duration (seconds)', conf.level = 0.95)#sacamos el intervalo de confianza
+
 print(intervalo$conf.int)#intervalo de confianza
-print(mean(retval$'duration (seconds)'))#media
+print(paste("Media: ",mean(retval$'duration (seconds)')))#media
 
 print(paste("El resultado indica que la media de la variable duracion (seconds) es de ", mean(retval$duration..seconds.), " el cual se encuentra con una confianza del 95% en el intervalo ", intervalo$conf.int[1], " ", intervalo$conf.int[2]))
 
