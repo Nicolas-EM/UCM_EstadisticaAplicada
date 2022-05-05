@@ -1,6 +1,8 @@
 ---
 title: "EA - Analisis OVNIs"
-output: html_notebook
+output: 
+  html_document: 
+    toc: yes
 ---
 
 ```{r setup, include=FALSE} 
@@ -8,6 +10,7 @@ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
 
 # Objetivos
+
 - TODO
 - TODO
 - TODO
@@ -36,14 +39,14 @@ library(dplyr)
 datos <- datos %>% select(-one_of('duration..seconds.', 'duration..hours.min.', 'date.posted'))
 ```
 
-Analisando los datos por pais, lógicamente podemos ver que la mayoria de los OVNIs reportados a la National UFO Reporting Center de EEUU ocurririon dentro de EEUU. Usaremos la libreria *ggplot2* para generar un diagrama representando el numero de OVNIs reportados por pais y la libreria *leaflet* para generar un mapa con las longitudes y latitudes.
+AnaliZando los datos por país, lógicamente podemos ver que la mayoría de los OVNIs reportados a la National UFO Reporting Center de EEUU ocurrieron dentro de EEUU. Usaremos la libreria *ggplot2* para generar un diagrama representando el numero de OVNIs reportados por país y la librería *leaflet* para generar un mapa con las longitudes y latitudes.
 
 ```{r}
 library(leaflet)
 library(ggplot2)
 
 by_country <- aggregate(datos$country, by=list(Country = datos$country), FUN=length)
-
+##Generamos un diagrama representando al número de OVNIs por país
 ggplot(by_country, aes(x=by_country$Country, y=by_country$x, fill=by_country$Country)) +
   geom_bar(stat="identity", width=1) +
   xlab('Paises') +
@@ -58,7 +61,7 @@ leaflet(datos) %>%
              clusterOptions = markerClusterOptions())
 ```
 
-Por eso, hemos decidido hacer nuestros analisis sobre datos solamente de EEUU. Tomamos una prueba de tamaño 1000.
+Por eso, hemos decidido hacer nuestros análisis sobre datos solamente de EEUU. Tomamos una prueba de tamaño 1000.
 
 ```{r}
 datos_us <- datos[which(datos$country == 'us'),]
@@ -451,7 +454,7 @@ print(paste("Si vivo fuera de Estados Unidos que probabilidad hay de avistar un 
 
 ## Distribucion normal
 
-Funcion de densidad respecto a los días de los mes mas comunes de todos los años en el que se han visto ovnis en EEUU. Como los datos, excepto los extremos, están aproximadamente sobre la linea, podemos decir que exluyendo los extremos, los datos siguen una distribucion normal.
+Como los datos, excepto los extremos, están aproximadamente sobre la linea, podemos decir que exluyendo los extremos, los datos siguen una distribucion normal.
 
 
 ```{r}
@@ -516,7 +519,8 @@ curve(dnorm(x,15,12),xlim=c(0,30),yaxs="i",ylim=c(0,0.035),ylab="f(x)",
 polygon(xP,yP,col="orange1")
 box()
 ```
-## Diagrama de POISSON
+
+## Diagrama de Poisson
 
 Podemos averiguar cuantos ovnis fueron divisados en 2012.
 
@@ -536,6 +540,7 @@ plot(dpois(0:200, landa), type = "h", lwd = 2,
 
 
 ```
+
 ## Distribución Exponencial
 
 Una vez calculada la tasa de llegada de los ovnis en 2012 con la distribucion de Poisson, podemos dibujar la gráfica de la función de densidad exponencial.
@@ -620,6 +625,7 @@ plot(qpois(seq(0,1,0.001), landa),
 
 axis(1, labels = seq(0, 1, 0.1), at = 0:10 * 100)
 ```
+
 ## Distribucion Binomial
 
 Para los datos, vamos a calcular la probabilidad de se vean ovnis el dia 24 de cada mes.
